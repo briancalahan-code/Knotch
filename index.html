@@ -608,13 +608,10 @@
 
     .why-layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 48px;
       align-items: start;
-    }
-
-    @media (max-width: 768px) {
-      .why-layout { grid-template-columns: 1fr; }
+      max-width: 720px;
     }
 
     .bio-card {
@@ -964,7 +961,7 @@
       <div class="diag-card" data-num="02">
         <div class="tag tag-purple">Win-Data ICP</div>
         <h3>Closed-won history defines the target</h3>
-        <p>We reverse-engineer ICP from your actual wins&mdash;firmographics, tech stack, deal size, cycle length&mdash;then score and prioritize your pipeline against what's proven to convert.</p>
+        <p>We reverse-engineer ICP from your actual wins and stakeholder interviews&mdash;firmographics, tech stack, deal size, cycle length&mdash;then score and prioritize your pipeline against what's proven to convert.</p>
       </div>
 
       <div class="diag-card" data-num="03">
@@ -1028,7 +1025,7 @@
         <ul>
           <li>Define qualification-gated pipeline stages aligned to SPICED (or hybrid methodology)</li>
           <li>Document "CEO of the Deal" AE expectations: activity cadence, multi-threading rules, meeting targets</li>
-          <li>Reverse-engineer ICP from closed-won data and build operational scoring rules</li>
+          <li>Reverse-engineer ICP from closed-won data and stakeholder interviews; build operational scoring rules</li>
           <li>Design territory model and account-assignment logic</li>
         </ul>
       </div>
@@ -1081,15 +1078,15 @@
     <div class="phase2-grid">
       <div class="phase2-card">
         <div class="emoji">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--md-sys-color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--md-sys-color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         </div>
-        <h3>Confident, Data-Driven Meetings</h3>
-        <p>AI briefing agents surface deal context, intent signals, and methodology-aligned talking points before every meeting. Reps walk in prepared with a consistent value proposition.</p>
+        <h3>Advanced Data Enrichment Strategy</h3>
+        <p>Layer intent data (Bombora, G2), technographic signals (BuiltWith, Clay), and web-traffic intelligence (Similarweb) into a unified enrichment pipeline. Score accounts on buying propensity, surface warm accounts before reps ask, and trigger automated sequences when signal thresholds are met.</p>
       </div>
 
       <div class="phase2-card">
         <div class="emoji">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--md-sys-color-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--md-sys-color-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
         <h3>Admin Out of Sales</h3>
         <p>Autofill CRM fields from email, calendar, and call transcripts. Surface tasks and follow-ups automatically. Reps stop managing spreadsheets and start managing deals.</p>
@@ -1099,8 +1096,8 @@
         <div class="emoji">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--md-sys-color-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
         </div>
-        <h3>Automated Process Enforcement</h3>
-        <p>Workflows triggered by behavioral signals, stalled-deal thresholds, and low-activity alerts&mdash;keeping the revenue engine running without manual oversight.</p>
+        <h3>Confident, Data-Driven Meetings</h3>
+        <p>AI briefing agents surface deal context, enrichment signals, and methodology-aligned talking points before every meeting. Reps walk in prepared with a consistent value proposition grounded in data.</p>
       </div>
     </div>
 
@@ -1116,7 +1113,7 @@
     <div class="section-label">Why Me</div>
     <h2 class="section-title">This is what I build.</h2>
     <p class="section-body">
-      I built the RevOps function at Cardlytics from scratch through $400M in revenue. I'm currently supporting a $40M ARR company through the same GTM transformation. I will bring that same repeatable, understood, and reportable framework to Knotch&mdash;hard-wired into HubSpot and ready for AI-driven operations.
+      I managed the RevOps function at Cardlytics to support $400M in revenue. I'm currently supporting a $40M ARR company through the same GTM transformation. I will bring that same repeatable, understood, and reportable framework to Knotch&mdash;hard-wired into HubSpot and ready for AI-driven operations.
     </p>
 
     <div class="why-layout">
@@ -1124,7 +1121,7 @@
         <div class="name">Brian Calahan</div>
         <div class="role">Founder & Principal, GTM Evolved</div>
         <div class="bio-text">
-          10+ years building GTM infrastructure at high-growth tech companies. Built the RevOps function at Cardlytics from scratch through $400M in revenue. Led $29B merger integration at Worldpay. Currently supporting a $40M ARR company through the same transformation. Engineering degree from Georgia Tech, JD from Georgia State. I build systems that are repeatable, understood, and reportable&mdash;not slide decks.
+          10+ years building GTM infrastructure at high-growth tech companies. Managed the RevOps function at Cardlytics to support $400M in revenue. Led $29B merger integration at Worldpay. Currently supporting a $40M ARR company through the same transformation. Engineering degree from Georgia Tech, JD from Georgia State. I build systems that are repeatable, understood, and reportable&mdash;not slide decks.
         </div>
         <div class="credentials">
           <span class="chip chip-primary">RevOps Architecture</span>
@@ -1135,24 +1132,6 @@
         </div>
       </div>
 
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-num">$400M</div>
-          <div class="stat-label">Revenue supported by RevOps systems built at Cardlytics</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">80%</div>
-          <div class="stat-label">Reduction in deal approval lifecycle through process automation</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">85%+</div>
-          <div class="stat-label">Forecast accuracy within 90 days of engagement</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">25%</div>
-          <div class="stat-label">Increase in deal velocity through data-driven pipeline management</div>
-        </div>
-      </div>
     </div>
   </section>
 
