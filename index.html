@@ -859,9 +859,88 @@
     @media print {
       .slide { min-height: auto; page-break-after: always; padding: 40px 8%; }
     }
+    /* ═══════════════════════════════════════════════
+       Password Gate
+    ═══════════════════════════════════════════════ */
+    .pw-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--md-sys-color-inverse-surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .pw-gate.hidden { display: none; }
+
+    .pw-gate h2 {
+      font-size: var(--md-sys-typescale-headline-small);
+      font-weight: 600;
+      color: var(--md-sys-color-inverse-on-surface);
+    }
+
+    .pw-gate input {
+      width: 280px;
+      padding: 12px 20px;
+      border-radius: var(--md-sys-shape-corner-large);
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: var(--md-sys-color-inverse-on-surface);
+      font-size: var(--md-sys-typescale-body-large);
+      font-family: inherit;
+      outline: none;
+      text-align: center;
+    }
+
+    .pw-gate input:focus {
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .pw-gate input::placeholder {
+      color: rgba(240,241,247,0.3);
+    }
+
+    .pw-gate .pw-error {
+      font-size: var(--md-sys-typescale-body-small);
+      color: var(--md-sys-color-error);
+      height: 16px;
+    }
+
+    body.locked { overflow: hidden; }
   </style>
 </head>
-<body>
+<body class="locked">
+
+  <!-- Password Gate -->
+  <div class="pw-gate" id="pwGate">
+    <h2>Enter password to view</h2>
+    <input type="password" id="pwInput" placeholder="Password" autofocus />
+    <div class="pw-error" id="pwError"></div>
+  </div>
+
+  <script>
+    (function() {
+      var gate = document.getElementById('pwGate');
+      var input = document.getElementById('pwInput');
+      var error = document.getElementById('pwError');
+      function tryUnlock() {
+        if (input.value === 'gtm') {
+          gate.classList.add('hidden');
+          document.body.classList.remove('locked');
+        } else if (input.value.length > 0) {
+          error.textContent = 'Incorrect password';
+          input.value = '';
+        }
+      }
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') tryUnlock();
+        else error.textContent = '';
+      });
+    })();
+  </script>
 
   <!-- ═══════════════════════════════════════════════
        SLIDE 1 — COVER
