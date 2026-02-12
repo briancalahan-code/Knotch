@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Knotch GTM Foundation — GTM Evolved</title>
+  <title>Knotch GTM Foundation | GTM Evolved</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ═══════════════════════════════════════════════
@@ -239,7 +239,7 @@
     }
 
     /* ═══════════════════════════════════════════════
-       SLIDE 2 — The Opportunity
+       SLIDE 2 — Operating Principles
     ═══════════════════════════════════════════════ */
     .slide-opportunity {
       background: var(--md-sys-color-surface);
@@ -326,6 +326,67 @@
       line-height: 1.6;
     }
 
+    /* Scope grid */
+    .scope-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .scope-card {
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-medium);
+      padding: 28px;
+    }
+
+    .scope-card h3 {
+      font-size: var(--md-sys-typescale-title-medium);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .scope-card.scope-in h3 {
+      color: var(--md-sys-color-primary);
+    }
+
+    .scope-card.scope-out h3 {
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .scope-card ul {
+      list-style: none;
+    }
+
+    .scope-card ul li {
+      font-size: var(--md-sys-typescale-body-medium);
+      color: var(--md-sys-color-on-surface-variant);
+      padding: 5px 0;
+      padding-left: 20px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .scope-card.scope-in ul li::before {
+      content: '\2713';
+      position: absolute;
+      left: 0;
+      color: var(--md-sys-color-tertiary);
+      font-weight: 700;
+    }
+
+    .scope-card.scope-out ul li::before {
+      content: '\2192';
+      position: absolute;
+      left: 0;
+      color: var(--md-sys-color-outline);
+    }
+
+    @media (max-width: 768px) {
+      .scope-grid { grid-template-columns: 1fr; }
+    }
+
     /* ═══════════════════════════════════════════════
        SLIDE 3 — How I Work
     ═══════════════════════════════════════════════ */
@@ -405,6 +466,18 @@
       left: 0;
       color: var(--md-sys-color-primary);
       font-weight: 600;
+    }
+
+    /* Diagnosis note */
+    .diagnosis-note {
+      margin-top: 32px;
+      padding: 20px 24px;
+      border-left: 3px solid var(--md-sys-color-tertiary);
+      background: rgba(0,212,170,0.06);
+      border-radius: 0 var(--md-sys-shape-corner-small) var(--md-sys-shape-corner-small) 0;
+      font-size: var(--md-sys-typescale-body-medium);
+      color: rgba(240,241,247,0.7);
+      line-height: 1.6;
     }
 
     /* ═══════════════════════════════════════════════
@@ -541,6 +614,21 @@
       left: 0;
       color: var(--md-sys-color-tertiary);
       font-weight: 700;
+    }
+
+    .stage-note {
+      margin-top: 16px;
+      padding: 14px 18px;
+      border-left: 3px solid var(--md-sys-color-secondary);
+      background: rgba(185,101,255,0.04);
+      border-radius: 0 var(--md-sys-shape-corner-small) var(--md-sys-shape-corner-small) 0;
+      font-size: var(--md-sys-typescale-body-small);
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.5;
+    }
+
+    .stage-note strong {
+      color: var(--md-sys-color-secondary);
     }
 
     /* ═══════════════════════════════════════════════
@@ -967,52 +1055,81 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════
-       SLIDE 2 — THE OPPORTUNITY
+       SLIDE 2 — OPERATING PRINCIPLES
   ═══════════════════════════════════════════════ -->
   <section class="slide slide-opportunity">
-    <div class="section-label">Guiding Principle</div>
-    <h2 class="section-title">Repeatable, understood, and reportable GTM motions.</h2>
+    <div class="section-label">Operating Principles</div>
+    <h2 class="section-title">Sales is the customer.</h2>
     <p class="section-body">
-      Strong products with undisciplined revenue motions leave money on the table. The companies that scale are the ones that hard-wire process into their CRM, measure the inputs that predict outcomes, and give managers the visibility to coach&mdash;not just inspect.
+      Everything I deliver exists for one reason: to get sellers in-market and better enabled when they show up. Not internal overhead. Not advisory decks. Repeatable, understood, and reportable revenue motions that sellers actually use, managers can coach to, and leadership can measure.
     </p>
 
     <div class="insight-grid">
       <div class="insight-card">
         <div class="icon icon-primary">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
-        <h3>Process First</h3>
-        <p>No tool fixes a broken motion. I architect how your team sells, then hard-wire it into the CRM so it's enforced, not optional.</p>
+        <h3>Seller-First Design</h3>
+        <p>Every process, field, and report is built to make sellers faster and better prepared. If it doesn't help them close, it doesn't ship.</p>
       </div>
 
       <div class="insight-card">
         <div class="icon icon-secondary">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         </div>
-        <h3>Qualification-Gated Stages</h3>
-        <p>Deal stages reflect buyer progression with required fields at each gate. Reps can't advance without the information that de-risks the forecast.</p>
+        <h3>Process Before Tools</h3>
+        <p>No CRM fixes a broken motion. I design how your team qualifies, progresses, and closes deals first, then hard-wire it into the system so it's enforced, not optional.</p>
       </div>
 
       <div class="insight-card">
         <div class="icon icon-tertiary">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
         </div>
-        <h3>Activity &rarr; Pipeline Math</h3>
-        <p>Instrument every step: outbound activity &rarr; qualified meetings &rarr; pipeline &rarr; closed revenue. Managers coach to leading indicators, not lagging reports.</p>
+        <h3>Minimal Admin, Maximum Selling</h3>
+        <p>Sellers sell. Systems capture. Reports generate. The goal is reps spending time in conversations, not in CRM fields and spreadsheets.</p>
       </div>
 
       <div class="insight-card">
         <div class="icon icon-primary">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
         </div>
-        <h3>AI-Ready by Design</h3>
-        <p>Forecasting models and AI agents depend on clean, structured CRM data. I build the foundation first so your AI stack delivers value from day one.</p>
+        <h3>Reportable at Every Level</h3>
+        <p>Dashboards for sellers to manage their own pipeline and deals. Dashboards for the business to forecast, coach, and scale. If it can't be measured, it doesn't exist.</p>
+      </div>
+    </div>
+
+    <div class="scope-grid">
+      <div class="scope-card scope-in">
+        <h3>Addressed in Phase 1 (4 Weeks)</h3>
+        <ul>
+          <li>Revenue motion design with SPICED and stakeholder mapping</li>
+          <li>ICP validation, data field gaps, scoring, and real-time seller alerts</li>
+          <li>Streamlined diagnosis (validating gaps, not repeating prior work)</li>
+          <li>Tool audit: what goes into HubSpot, what tools sellers and the business use and why</li>
+          <li>Seller-facing and business-facing reporting dashboards</li>
+          <li>Automated deal strategy prompts to de-risk and accelerate deals</li>
+          <li>C-Suite to Sales handoff consistency and SLAs</li>
+          <li>Marketing event + sales motion alignment</li>
+          <li>Outbound sequencing recommendation for tier 2/3 accounts</li>
+          <li>Team enablement and documentation</li>
+        </ul>
+      </div>
+
+      <div class="scope-card scope-out">
+        <h3>Scoped for Phase 2</h3>
+        <ul>
+          <li>AI automation layer (NotebookLM, auto-CRM-fill from calls and emails)</li>
+          <li>AI-generated internal and external deal documents</li>
+          <li>Advanced enrichment (intent data, technographic signals, buying propensity)</li>
+          <li>Full tool implementation beyond CRM configuration</li>
+          <li>Ongoing managed RevOps services</li>
+        </ul>
       </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════
-       SLIDE 3 — WHAT WE HEARD
+       SLIDE 3 — HOW I WORK
   ═══════════════════════════════════════════════ -->
   <section class="slide slide-diagnosis">
     <div class="section-label">How I Work</div>
@@ -1031,28 +1148,32 @@
 
     <div class="diagnosis-grid">
       <div class="diag-card" data-num="01">
-        <div class="tag tag-blue">Revenue-Motion Architecture</div>
-        <h3>Design the engine, not just the dashboard</h3>
-        <p>I architect how AEs qualify, progress, and close deals&mdash;defining "CEO of the Deal" expectations, multi-threading rules, and qualification gates that make the motion repeatable and coachable.</p>
+        <div class="tag tag-blue">Revenue Motions</div>
+        <h3>Design the engine sellers actually run</h3>
+        <p>I architect how AEs qualify, progress, and close deals using SPICED methodology. Stakeholder mapping, multi-threading rules, and qualification gates are documented and automated into internal deal briefs for the team. Includes prompted deal strategy that surfaces what's missing from each deal and recommends next actions to de-risk and accelerate.</p>
       </div>
 
       <div class="diag-card" data-num="02">
         <div class="tag tag-purple">Win-Data ICP</div>
-        <h3>Closed-won history defines the target</h3>
-        <p>I reverse-engineer ICP from your actual wins and stakeholder interviews&mdash;firmographics, tech stack, deal size, cycle length&mdash;then score and prioritize your pipeline against what's proven to convert.</p>
+        <h3>Validated fast, enriched deeper</h3>
+        <p>ICP is in decent shape and will be reviewed quickly using Alysio and closed-won data. The real work: filling blank data fields in your systems, setting a refresh cadence, routing fringe accounts (80-90% fit) for human review instead of auto-disqualifying, and surfacing real-time ICP alerts directly to sellers.</p>
       </div>
 
       <div class="diag-card" data-num="03">
         <div class="tag tag-teal">Hard-Wired in CRM</div>
         <h3>Process is enforced, not suggested</h3>
-        <p>Required fields, gating criteria, and automation rules mean the methodology lives in HubSpot&mdash;not in a slide deck. Reps follow the process because the system demands it.</p>
+        <p>Required fields, gating criteria, and automation rules mean the methodology lives in HubSpot, not in a slide deck. Reps follow the process because the system demands it. The goal: sellers spend as little time in CRM as possible while the business gets full visibility.</p>
       </div>
 
       <div class="diag-card" data-num="04">
-        <div class="tag tag-blue">Reportable to the ELT</div>
-        <h3>Reports that matter, not reports for reporting's sake</h3>
-        <p>Dashboards track what leadership needs: activity-to-pipeline conversion, rep performance vs. benchmarks, and pipeline health signals that surface risk before it's too late.</p>
+        <div class="tag tag-blue">Reports for Sellers & the Business</div>
+        <h3>Two audiences, two sets of dashboards</h3>
+        <p>Seller-facing views: my pipeline, my activity, deal health, what's missing. Business-facing views: forecast accuracy, pipeline coverage, rep performance vs. benchmarks, and ICP-segment conversion. Reports that drive action, not just inspection.</p>
       </div>
+    </div>
+
+    <div class="diagnosis-note">
+      <strong>On diagnosis:</strong> This will be a targeted, streamlined exercise with Brian, Don, and Ben. Prior work has been done here and I won't repeat it. The focus is on validating what exists, identifying gaps to a level required for your business needs, and moving quickly into design and execution.
     </div>
   </section>
 
@@ -1060,13 +1181,13 @@
        SLIDE 4 — PHASE 1 SOW
   ═══════════════════════════════════════════════ -->
   <section class="slide slide-sow">
-    <div class="section-label">Phase 1 &mdash; Statement of Work</div>
+    <div class="section-label">Phase 1: Statement of Work</div>
     <div class="sow-header">
       <span class="price">$20,000</span>
       <span class="terms">Fixed fee&ensp;/&ensp;4 weeks&ensp;/&ensp;Embedded execution</span>
     </div>
     <p class="section-body" style="margin-bottom: 0;">
-      Design and enable a repeatable, understood, and reportable revenue engine&mdash;architecting the GTM framework, hard-wiring it into HubSpot, and aligning data and RevOps so the ELT can manage, measure, and scale.
+      Design and enable a repeatable, understood, and reportable revenue engine. Architect the GTM framework, hard-wire it into HubSpot, and align data and RevOps so the business can manage, measure, and scale. Sales is the customer; everything ships to make sellers faster.
     </p>
     <a href="https://docs.google.com/document/d/1qaaswebpFlU1g3HV4XM3KBU9Xoli-MpdLSIpgjrNdFo/edit?usp=sharing" class="btn-sow" target="_blank">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -1077,17 +1198,17 @@
       <div class="timeline-item">
         <div class="timeline-dot">W1</div>
         <h4>Diagnose</h4>
-        <p>GTM audit, stakeholder interviews, win/loss data analysis</p>
+        <p>Targeted audit with Brian, Don, and Ben. Validate gaps, don't repeat prior work.</p>
       </div>
       <div class="timeline-item">
         <div class="timeline-dot">W2</div>
         <h4>Design</h4>
-        <p>Process framework, ICP scoring model, activity benchmarks</p>
+        <p>Revenue motions, SPICED framework, ICP scoring, stakeholder mapping, activity benchmarks</p>
       </div>
       <div class="timeline-item">
         <div class="timeline-dot">W3</div>
         <h4>Build</h4>
-        <p>CRM configuration, reporting views, enrichment setup</p>
+        <p>CRM configuration, tool stack mapping, reporting views, enrichment setup</p>
       </div>
       <div class="timeline-item">
         <div class="timeline-dot">W4</div>
@@ -1099,12 +1220,15 @@
     <div class="deliverable-grid">
       <div class="deliverable">
         <div class="deliverable-num">Workstream 1</div>
-        <h3>Revenue-Motion Architecture</h3>
+        <h3>Revenue Motions</h3>
         <ul>
-          <li>Define qualification-gated pipeline stages aligned to SPICED (or hybrid methodology)</li>
+          <li>Define SPICED-aligned, qualification-gated pipeline stages</li>
           <li>Document "CEO of the Deal" AE expectations: activity cadence, multi-threading rules, meeting targets</li>
-          <li>Reverse-engineer ICP from closed-won data and stakeholder interviews; build operational scoring rules</li>
-          <li>Design territory model and account-assignment logic</li>
+          <li>Build stakeholder mapping with automated internal deal briefs (SPICED-aligned) for the team</li>
+          <li>Automated/prompted deal strategy: surfaces what's missing from each deal, recommends actions to de-risk and accelerate</li>
+          <li>Reverse-engineer ICP from closed-won data; fill blank data fields, set refresh cadence</li>
+          <li>Route fringe accounts (80-90% ICP fit) for human review instead of auto-disqualifying</li>
+          <li>Surface real-time ICP alerts directly to sellers</li>
         </ul>
       </div>
 
@@ -1112,20 +1236,26 @@
         <div class="deliverable-num">Workstream 2</div>
         <h3>CRM Implementation & Reporting</h3>
         <ul>
-          <li>Hard-wire methodology into HubSpot: required fields, validation rules, buying-committee mapping</li>
-          <li>Build activity-to-outcome dashboards: outbound &rarr; meetings &rarr; pipeline &rarr; closed-won</li>
-          <li>Create manager views: AE performance vs. benchmarks, pipeline health, ICP-segment conversion</li>
-          <li>Document data model for downstream AI and forecasting tools</li>
+          <li>Hard-wire SPICED methodology into HubSpot: required fields, validation rules, buying-committee mapping</li>
+          <li>Seller-facing dashboards: my pipeline, activity tracking, deal health, what's missing</li>
+          <li>Business-facing dashboards: forecast, pipeline coverage, rep performance vs. benchmarks, ICP-segment conversion</li>
+          <li>Principle: sellers spend as little time in CRM as possible</li>
         </ul>
+        <div class="stage-note">
+          <strong>Stage 1 (Feb / Phase 1):</strong> Audit full tool stack beyond HubSpot. Map which tools exist, what goes into CRM, and what tools sellers and the business use for what purpose.<br>
+          <strong>Stage 2 (Phase 2):</strong> AI automation layer. NotebookLM for deal-level internal and external docs, auto-fill CRM from calls/emails, prompted workflows.
+        </div>
       </div>
 
       <div class="deliverable">
         <div class="deliverable-num">Workstream 3</div>
-        <h3>Enrichment & Handoff Design</h3>
+        <h3>Handoff & Outbound Design</h3>
         <ul>
+          <li>Define C-Suite to Sales handoff rules with clear SLAs and consistency standards</li>
+          <li>Align marketing events with sales motions (disconnected today; alignment is a quick win for IPMs)</li>
           <li>Configure firmographic and tech-stack enrichment mapped into CRM</li>
           <li>Define lead scoring: ICP fit + engagement strength + activity history</li>
-          <li>Establish Marketing &rarr; Sales handoff rules with clear SLAs</li>
+          <li>Recommend light-lift outbound sequencing tool for tier 2/3 target accounts (e.g., HubSpot Sequences or Apollo based on current stack)</li>
         </ul>
       </div>
 
@@ -1135,7 +1265,7 @@
         <ul>
           <li>Map current GTM stack, data flows, and friction points</li>
           <li>Deliver AI Readiness Scorecard: data quality, process maturity, automation gaps</li>
-          <li>Prioritized 90-day roadmap with quick wins, resourcing plan, and Phase 2 positioning</li>
+          <li>Prioritized 90-day roadmap: Phase 2 tooling (AI automation, NotebookLM, advanced enrichment), resourcing, and quick wins</li>
         </ul>
       </div>
     </div>
@@ -1145,7 +1275,7 @@
        SLIDE 5 — PHASE 2 VISION
   ═══════════════════════════════════════════════ -->
   <section class="slide slide-phase2">
-    <div class="section-label">Phase 2 &mdash; What Comes Next</div>
+    <div class="section-label">Phase 2: What Comes Next</div>
     <h2 class="section-title" style="color: var(--md-sys-color-inverse-on-surface);">
       Data-Forward, AI-Assisted, Admin-Light
     </h2>
@@ -1191,7 +1321,7 @@
     <div class="section-label">Why Me</div>
     <h2 class="section-title">This is what I build.</h2>
     <p class="section-body">
-      I managed the RevOps function at Cardlytics to support $400M in revenue. I'm currently supporting a $40M ARR company through the same GTM transformation. I will bring that same repeatable, understood, and reportable framework to Knotch&mdash;hard-wired into HubSpot and ready for AI-driven operations.
+      I managed the RevOps function at Cardlytics to support $400M in revenue. I'm currently supporting a $40M ARR company through the same GTM transformation. I will bring that same repeatable, understood, and reportable framework to Knotch: hard-wired into HubSpot and ready for AI-driven operations.
     </p>
 
     <div class="why-layout">
@@ -1199,7 +1329,7 @@
         <div class="name">Brian Calahan</div>
         <div class="role">Founder & Principal, GTM Evolved</div>
         <div class="bio-text">
-          10+ years building GTM infrastructure at high-growth tech companies. Managed the RevOps function at Cardlytics to support $400M in revenue. Led $29B merger integration at Worldpay. Currently supporting a $40M ARR company through the same transformation. Engineering degree from Georgia Tech, JD from Georgia State. I build systems that are repeatable, understood, and reportable&mdash;not slide decks.
+          10+ years building GTM infrastructure at high-growth tech companies. Managed the RevOps function at Cardlytics to support $400M in revenue. Led $29B merger integration at Worldpay. Currently supporting a $40M ARR company through the same transformation. Engineering degree from Georgia Tech, JD from Georgia State. I build systems that are repeatable, understood, and reportable. Not slide decks.
         </div>
         <div class="credentials">
           <span class="chip chip-primary">RevOps Architecture</span>
