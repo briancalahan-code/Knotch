@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-04-22T21:03:19Z",
+  "mode": "live",
+  "tiers": [
+    "I",
+    "II",
+    "III"
+  ],
+  "total_scored": 1092,
+  "changed": 1030,
+  "distribution": {
+    "high": 9,
+    "medium": 178,
+    "low": 905
+  },
+  "missing_data": {
+    "employees": 1,
+    "tech_stack": 1,
+    "demandbase_qual": 203
+  },
+  "top_10": [
+    {
+      "name": "Allstate",
+      "tier": "I",
+      "icp": 71.2,
+      "dm": 58.2
+    },
+    {
+      "name": "HP Inc",
+      "tier": "II",
+      "icp": 71.2,
+      "dm": 63.8
+    },
+    {
+      "name": "Cigna",
+      "tier": "I",
+      "icp": 71.1,
+      "dm": 51.7
+    },
+    {
+      "name": "Google",
+      "tier": "III",
+      "icp": 70.8,
+      "dm": 58.4
+    },
+    {
+      "name": "JPMorgan Chase",
+      "tier": "I",
+      "icp": 70.5,
+      "dm": 57.0
+    },
+    {
+      "name": "Chubb",
+      "tier": "I",
+      "icp": 70.5,
+      "dm": 47.5
+    },
+    {
+      "name": "Optum",
+      "tier": "I",
+      "icp": 70.3,
+      "dm": 53.1
+    },
+    {
+      "name": "Hyatt Hotels Corporation",
+      "tier": "I",
+      "icp": 70.2,
+      "dm": 54.5
+    },
+    {
+      "name": "Dell",
+      "tier": "I",
+      "icp": 70.1,
+      "dm": 61.8
+    },
+    {
+      "name": "USAA",
+      "tier": "I",
+      "icp": 69.0,
+      "dm": 54.4
+    }
+  ]
+}

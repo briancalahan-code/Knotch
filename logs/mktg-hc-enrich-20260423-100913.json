@@ -1,0 +1,285 @@
+{
+  "timestamp": "2026-04-23T10:09:13.506516",
+  "mode": "live",
+  "total_missing": 493,
+  "no_domain": [],
+  "apollo_enriched": 454,
+  "apollo_missed_domains": [
+    "tdameritrade.com",
+    "ihgplc.com",
+    "fddbank.com",
+    "disney.com",
+    "pennmedicine.upenn.edu",
+    "bloomberg.net",
+    "amazonbusiness.com",
+    "comcast.com",
+    "nttdata.com",
+    "cvs.co",
+    "canon.us",
+    "cna.com",
+    "ibkr.com",
+    "ptc.co",
+    "umpquabank.com",
+    "gevernova.com",
+    "firstam.com",
+    "carrier.com",
+    "universalorlando.com",
+    "amexgbt.com",
+    "creditone.com",
+    "westernalliancebank.com",
+    "stackoverflow.com",
+    "theknot.com",
+    "northwest.com",
+    "dukehealth.org",
+    "auth0.com",
+    "cshs.org",
+    "aws.com",
+    "toyota.com",
+    "gmfinancial.com",
+    "icapitalnetwork.com",
+    "findheadway.com",
+    "ultramobile.com",
+    "coyote.com",
+    "xogrp.com",
+    "thehox.com",
+    "effem.com",
+    "receipts.spend.emburse.com"
+  ],
+  "apollo_missed_companies": [
+    {
+      "domain": "tdameritrade.com",
+      "name": "TD Ameritrade",
+      "tier": "I",
+      "id": "20398048122"
+    },
+    {
+      "domain": "ihgplc.com",
+      "name": "IHG Hotels",
+      "tier": "I",
+      "id": "21677041307"
+    },
+    {
+      "domain": "fddbank.com",
+      "name": "Fidelity Bank",
+      "tier": "I",
+      "id": "28680469140"
+    },
+    {
+      "domain": "disney.com",
+      "name": "The Walt Disney Company",
+      "tier": "I",
+      "id": "29642717500"
+    },
+    {
+      "domain": "pennmedicine.upenn.edu",
+      "name": "Penn",
+      "tier": "I",
+      "id": "32880820602"
+    },
+    {
+      "domain": "bloomberg.net",
+      "name": "Bloomberg L.P.",
+      "tier": "I",
+      "id": "53323120401"
+    },
+    {
+      "domain": "amazonbusiness.com",
+      "name": "Amazon Business",
+      "tier": "I",
+      "id": "36323828244"
+    },
+    {
+      "domain": "comcast.com",
+      "name": "Comcast",
+      "tier": "I",
+      "id": "36294023598"
+    },
+    {
+      "domain": "nttdata.com",
+      "name": "NTT DATA North America",
+      "tier": "I",
+      "id": "36304632884"
+    },
+    {
+      "domain": "cvs.co",
+      "name": "CVS Pharmacy",
+      "tier": "I",
+      "id": "36321126811"
+    },
+    {
+      "domain": "canon.us",
+      "name": "Canon USA",
+      "tier": "I",
+      "id": "36379700583"
+    },
+    {
+      "domain": "cna.com",
+      "name": "CNA Insurance",
+      "tier": "I",
+      "id": "36379871256"
+    },
+    {
+      "domain": "ibkr.com",
+      "name": "Interactive Brokers",
+      "tier": "II",
+      "id": "18687438851"
+    },
+    {
+      "domain": "ptc.co",
+      "name": "PTC",
+      "tier": "II",
+      "id": "18687601924"
+    },
+    {
+      "domain": "umpquabank.com",
+      "name": "Umpqua Bank",
+      "tier": "II",
+      "id": "20582902827"
+    },
+    {
+      "domain": "gevernova.com",
+      "name": "GE Power",
+      "tier": "II",
+      "id": "30723290140"
+    },
+    {
+      "domain": "firstam.com",
+      "name": "First American",
+      "tier": "II",
+      "id": "36290824352"
+    },
+    {
+      "domain": "carrier.com",
+      "name": "Carrier HVAC",
+      "tier": "II",
+      "id": "36321283967"
+    },
+    {
+      "domain": "universalorlando.com",
+      "name": "Universal Orlando Resort",
+      "tier": "II",
+      "id": "53323244405"
+    },
+    {
+      "domain": "amexgbt.com",
+      "name": "American Express Global Business Travel",
+      "tier": "II",
+      "id": "36321438834"
+    },
+    {
+      "domain": "creditone.com",
+      "name": "Credit One",
+      "tier": "II",
+      "id": "40958651459"
+    },
+    {
+      "domain": "westernalliancebank.com",
+      "name": "Western Alliance Bank",
+      "tier": "II",
+      "id": "43343887469"
+    },
+    {
+      "domain": "stackoverflow.com",
+      "name": "Stack Overflow",
+      "tier": "III",
+      "id": "18688339234"
+    },
+    {
+      "domain": "theknot.com",
+      "name": "The Knot",
+      "tier": "III",
+      "id": "18688427016"
+    },
+    {
+      "domain": "northwest.com",
+      "name": "Northwest Bank",
+      "tier": "III",
+      "id": "18687606290"
+    },
+    {
+      "domain": "dukehealth.org",
+      "name": "Duke Health",
+      "tier": "III",
+      "id": "18687361890"
+    },
+    {
+      "domain": "auth0.com",
+      "name": "Auth0",
+      "tier": "III",
+      "id": "18688385153"
+    },
+    {
+      "domain": "cshs.org",
+      "name": "Cedars-Sinai",
+      "tier": "III",
+      "id": "18687540074"
+    },
+    {
+      "domain": "aws.com",
+      "name": "Amazon Web Services (AWS)",
+      "tier": "III",
+      "id": "53323244043"
+    },
+    {
+      "domain": "toyota.com",
+      "name": "Toyota North America",
+      "tier": "III",
+      "id": "20399357477"
+    },
+    {
+      "domain": "gmfinancial.com",
+      "name": "GM Financial",
+      "tier": "III",
+      "id": "20701811006"
+    },
+    {
+      "domain": "icapitalnetwork.com",
+      "name": "iCapital",
+      "tier": "III",
+      "id": "23232306297"
+    },
+    {
+      "domain": "findheadway.com",
+      "name": "Headway",
+      "tier": "III",
+      "id": "23237689619"
+    },
+    {
+      "domain": "ultramobile.com",
+      "name": "Ultra Mobile",
+      "tier": "III",
+      "id": "23362473880"
+    },
+    {
+      "domain": "coyote.com",
+      "name": "Coyote Logistics",
+      "tier": "III",
+      "id": "26692939676"
+    },
+    {
+      "domain": "xogrp.com",
+      "name": "The Knot Worldwide",
+      "tier": "III",
+      "id": "37395405467"
+    },
+    {
+      "domain": "thehox.com",
+      "name": "The Hoxton",
+      "tier": "III",
+      "id": "38685389999"
+    },
+    {
+      "domain": "effem.com",
+      "name": "Mars, Incorporated",
+      "tier": "III",
+      "id": "41304283736"
+    },
+    {
+      "domain": "receipts.spend.emburse.com",
+      "name": "Emburse",
+      "tier": "III",
+      "id": "44550305168"
+    }
+  ],
+  "hubspot_updates": 454
+}

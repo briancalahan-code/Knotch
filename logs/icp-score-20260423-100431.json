@@ -1,0 +1,129 @@
+{
+  "timestamp": "2026-04-23T14:04:19Z",
+  "mode": "live",
+  "model_version": "v3",
+  "tiers": [
+    "I",
+    "II",
+    "III"
+  ],
+  "total_scored": 1092,
+  "changed": 1092,
+  "distribution": {
+    "high": 22,
+    "medium": 274,
+    "low": 796
+  },
+  "missing_data": {
+    "revenue": 0,
+    "employees": 1,
+    "tech_stack": 1,
+    "content_tech": 8,
+    "marketing_hc": 493,
+    "events": 907,
+    "contacts": 226,
+    "deals": 869
+  },
+  "top_10": [
+    {
+      "name": "Accenture",
+      "tier": "I",
+      "icp": 84.6,
+      "ef": 91.0,
+      "dm": 75.0,
+      "ci": 79.0,
+      "en": 93.3,
+      "dc": 100.0
+    },
+    {
+      "name": "SAP",
+      "tier": "II",
+      "icp": 83.2,
+      "ef": 91.0,
+      "dm": 70.8,
+      "ci": 79.0,
+      "en": 92.0,
+      "dc": 100.0
+    },
+    {
+      "name": "JPMorgan Chase",
+      "tier": "I",
+      "icp": 81.2,
+      "ef": 91.0,
+      "dm": 64.0,
+      "ci": 70.0,
+      "en": 100.0,
+      "dc": 100.0
+    },
+    {
+      "name": "Salesforce",
+      "tier": "II",
+      "icp": 78.3,
+      "ef": 89.0,
+      "dm": 75.1,
+      "ci": 70.0,
+      "en": 79.2,
+      "dc": 92.5
+    },
+    {
+      "name": "Google",
+      "tier": "III",
+      "icp": 77.8,
+      "ef": 91.0,
+      "dm": 70.5,
+      "ci": 65.8,
+      "en": 83.8,
+      "dc": 92.5
+    },
+    {
+      "name": "TD Bank",
+      "tier": "I",
+      "icp": 77.4,
+      "ef": 90.9,
+      "dm": 74.9,
+      "ci": 70.0,
+      "en": 73.9,
+      "dc": 92.5
+    },
+    {
+      "name": "Capital One",
+      "tier": "I",
+      "icp": 76.4,
+      "ef": 84.9,
+      "dm": 74.9,
+      "ci": 79.0,
+      "en": 66.9,
+      "dc": 100.0
+    },
+    {
+      "name": "Fidelity",
+      "tier": "I",
+      "icp": 76.3,
+      "ef": 88.0,
+      "dm": 69.8,
+      "ci": 55.3,
+      "en": 92.0,
+      "dc": 100.0
+    },
+    {
+      "name": "ServiceNow",
+      "tier": "I",
+      "icp": 76.2,
+      "ef": 77.6,
+      "dm": 59.7,
+      "ci": 75.8,
+      "en": 91.8,
+      "dc": 100.0
+    },
+    {
+      "name": "BlackRock",
+      "tier": "I",
+      "icp": 75.4,
+      "ef": 77.0,
+      "dm": 54.5,
+      "ci": 70.0,
+      "en": 100.0,
+      "dc": 92.5
+    }
+  ]
+}

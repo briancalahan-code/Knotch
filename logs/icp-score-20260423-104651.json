@@ -1,0 +1,129 @@
+{
+  "timestamp": "2026-04-23T14:46:43Z",
+  "mode": "live",
+  "model_version": "v3",
+  "tiers": [
+    "I",
+    "II",
+    "III"
+  ],
+  "total_scored": 1092,
+  "changed": 479,
+  "distribution": {
+    "high": 39,
+    "medium": 362,
+    "low": 691
+  },
+  "missing_data": {
+    "revenue": 0,
+    "employees": 1,
+    "tech_stack": 1,
+    "content_tech": 8,
+    "marketing_hc": 8,
+    "events": 907,
+    "contacts": 226,
+    "deals": 869
+  },
+  "top_10": [
+    {
+      "name": "Salesforce",
+      "tier": "II",
+      "icp": 85.8,
+      "ef": 89.0,
+      "dm": 75.1,
+      "ci": 100.0,
+      "en": 79.2,
+      "dc": 100.0
+    },
+    {
+      "name": "Google",
+      "tier": "III",
+      "icp": 85.3,
+      "ef": 91.0,
+      "dm": 70.5,
+      "ci": 95.8,
+      "en": 83.8,
+      "dc": 100.0
+    },
+    {
+      "name": "TD Bank",
+      "tier": "I",
+      "icp": 84.9,
+      "ef": 90.9,
+      "dm": 74.9,
+      "ci": 100.0,
+      "en": 73.9,
+      "dc": 100.0
+    },
+    {
+      "name": "Accenture",
+      "tier": "I",
+      "icp": 84.6,
+      "ef": 91.0,
+      "dm": 75.0,
+      "ci": 79.0,
+      "en": 93.3,
+      "dc": 100.0
+    },
+    {
+      "name": "SAP",
+      "tier": "II",
+      "icp": 83.2,
+      "ef": 91.0,
+      "dm": 70.8,
+      "ci": 79.0,
+      "en": 92.0,
+      "dc": 100.0
+    },
+    {
+      "name": "BlackRock",
+      "tier": "I",
+      "icp": 82.9,
+      "ef": 77.0,
+      "dm": 54.5,
+      "ci": 100.0,
+      "en": 100.0,
+      "dc": 100.0
+    },
+    {
+      "name": "JPMorgan Chase",
+      "tier": "I",
+      "icp": 81.2,
+      "ef": 91.0,
+      "dm": 64.0,
+      "ci": 70.0,
+      "en": 100.0,
+      "dc": 100.0
+    },
+    {
+      "name": "IBM",
+      "tier": "II",
+      "icp": 80.3,
+      "ef": 91.0,
+      "dm": 80.1,
+      "ci": 100.0,
+      "en": 50.0,
+      "dc": 95.0
+    },
+    {
+      "name": "Intuit",
+      "tier": "I",
+      "icp": 78.1,
+      "ef": 73.1,
+      "dm": 77.1,
+      "ci": 100.0,
+      "en": 62.4,
+      "dc": 100.0
+    },
+    {
+      "name": "PwC",
+      "tier": "I",
+      "icp": 77.5,
+      "ef": 91.0,
+      "dm": 63.1,
+      "ci": 100.0,
+      "en": 56.0,
+      "dc": 100.0
+    }
+  ]
+}
