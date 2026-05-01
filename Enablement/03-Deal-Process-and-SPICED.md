@@ -141,29 +141,13 @@ SPICED ensures every deal has documented evidence of customer problem fit, busin
 
 Deals progress through the New/Expansion pipeline by satisfying stage exit criteria. A deal cannot advance to the next stage until the exit criteria are met.
 
-### Stage 1: IPM Set → IPM Held
+### Stage 1: IPM → Qualification (Stage 1)
 
-**Exit Criteria:**
+**Exit Criteria (must-haves):**
 
 - Meeting confirmed on calendar with at least one participant from prospect company
 - Meeting held (completed)
 - Meeting notes documented in deal record
-
-**Actions:**
-
-- Confirm meeting date/time with prospect
-- Add attendees on prospect side to buying group
-- Document agenda in deal notes
-- Send calendar confirmation with Zoom/Teams link
-
-**Timeline:** 5–10 business days to complete
-
----
-
-### Stage 2: IPM Held → Qualification (Stage 1)
-
-**Exit Criteria (must-haves):**
-
 - **Situation documented** – 2–3 sentence description of their current state and business context
 - **Pain identified** – At least 1 specific pain point documented
 - **Deal amount estimated** – Preliminary revenue estimate (can be range)
@@ -177,12 +161,16 @@ Deals progress through the New/Expansion pipeline by satisfying stage exit crite
 
 **Actions:**
 
+- Confirm meeting date/time with prospect
+- Add attendees on prospect side to buying group
+- Document agenda in deal notes
+- Send calendar confirmation with Zoom/Teams link
 - Schedule follow-up meeting(s) to deepen pain understanding
 - Add deal amount to HubSpot deal record
 - Begin building buying group profile
 - Update SPICED Situation and Pain fields
 
-**Timeline:** 10–15 business days from IPM Held
+**Timeline:** 15–25 business days from IPM
 
 ---
 
@@ -425,11 +413,11 @@ Beyond SPICED, use these account-level properties to plan expansion and manage r
 
 Map stakeholders to pipeline stage. This guides outreach and buying group composition.
 
-### IPM Set / IPM Held
+### IPM
 
 **Minimum contacts:** 1–2
 **Typical roles:** Scheduler contact (often coordinator or junior marketing stakeholder)
-**Activity:** Calendar confirmation
+**Activity:** Calendar confirmation, first meeting
 
 ### Qualification (Stage 1)
 
@@ -526,13 +514,13 @@ Knotch uses three automation workflows in HubSpot to enforce stage gate rules an
 
 **Typical New Business Deal Timeline:**
 
-- **IPM Set to Qualification:** 15–20 business days (IPM + 1–2 follow-ups)
+- **IPM to Qualification:** 15–20 business days (IPM + 1–2 follow-ups)
 - **Qualification to Consensus:** 20–30 business days (multiple stakeholder conversations, internal champion building)
 - **Consensus to Proposal:** 15–20 business days (business case prep, proposal drafting, internal review)
 - **Proposal to Procurement:** 10–15 business days (pricing negotiation, legal initiation)
 - **Procurement to Close:** 10–45 business days (contract negotiation, internal approvals, signature cycle)
 
-**Total: 70–150 business days (3.5–7.5 months)** from IPM Set to Close Won
+**Total: 70–150 business days (3.5–7.5 months)** from IPM to Close Won
 
 **Factors that extend cycle:**
 

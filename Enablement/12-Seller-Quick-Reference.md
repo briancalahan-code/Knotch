@@ -48,7 +48,7 @@
 
 ## Pipeline Stages (In Order)
 
-**IPM Set** → **IPM Held** → **Qualification** → **Consensus** → **Proposal** → **Procurement** → **Closed Won/Lost**
+**IPM** → **Qualification** → **Consensus** → **Proposal** → **Procurement** → **Closed Won/Lost**
 
 ---
 
@@ -56,7 +56,7 @@
 
 | Stage         | Min Contacts |
 | ------------- | ------------ |
-| IPM Set/Held  | 1–2          |
+| IPM           | 1–2          |
 | Qualification | 2–3          |
 | Consensus     | 3–5          |
 | Proposal      | 4–6+         |
