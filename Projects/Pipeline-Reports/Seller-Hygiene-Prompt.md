@@ -35,6 +35,8 @@ Use the HubSpot MCP connector (search_crm_objects).
 | 23357595 | No Recent Activity | Yellow   |
 | 23361441 | Stale Next Steps   | Yellow   |
 | 23357078 | Zombie             | Blue     |
+| 24848661 | IPM Stale          | Yellow   |
+| 24848759 | No Line Items      | Red      |
 
 **HubSpot Deal URL:** `https://app.hubspot.com/contacts/44523005/record/0-3/{deal_id}`
 
@@ -80,7 +82,7 @@ TOTAL OPEN DEALS: [n] | CLEAN: [n] | FLAGGED: [n]
   - [Deal Name] | [Stage] | $[Platform Amt] | Close [date] | Tags: [Tag1], [Tag2] | [link]
   - ...
 
-Severity sort order: Red (No Amount, Past-due Close, No Contacts) > Yellow (Stalled Deal, No Recent Activity, Stale Next Steps, Single Threaded) > Blue (Zombie). A deal with both Yellow and Blue tags sorts into the Yellow tier.
+Severity sort order: Red (No Amount, Past-due Close, No Contacts, No Line Items) > Yellow (Stalled Deal, No Recent Activity, Stale Next Steps, Single Threaded, IPM Stale) > Blue (Zombie). A deal with both Yellow and Blue tags sorts into the Yellow tier.
 
 --- CLEAN DEALS ([n]) ---
 

@@ -138,6 +138,8 @@ Deals move sequentially (no skipping stages). Typically 60-day sales cycle targe
 6. **Single Threaded** — Only one contact assigned at Qualification stage or later (concentration risk if contact leaves).
 7. **Stale Next Steps** — Next step date is in the past but deal is still open (you missed a commitment).
 8. **Past-Due Close** — Close date has already passed but deal is still in open pipeline (forecast accuracy issue).
+9. **IPM Stale** — Deal has been in IPM stage for 14+ days without advancing to Qualification.
+10. **No Line Items** — Deal is past IPM stage with no associated line items (open deals only).
 
 **Goal:** **Zero flags.** Every flag represents a deal quality issue that blocks close. Review your flags in the Deal Pipeline Hygiene dashboard weekly and resolve immediately.
 

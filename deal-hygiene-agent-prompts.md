@@ -54,6 +54,8 @@ TAG ID MAPPING (from hs_tag_ids property, semicolon-delimited):
 | 23357595 | No Recent Activity | Yellow |
 | 23361441 | Stale Next Steps | Yellow |
 | 23357078 | Zombie | Blue |
+| 24848661 | IPM Stale | Yellow |
+| 24848759 | No Line Items | Red |
 
 HubSpot Deal URL pattern: https://app.hubspot.com/contacts/44523005/record/0-3/{deal_id}
 Hygiene Dashboard: https://app.hubspot.com/reports-dashboard/44523005/view/19333613
@@ -91,7 +93,7 @@ Wednesday, [Month] [Date], [Year]
 
 *--- FLAGGED DEALS ([n]) ---*
 
-[Group deals by tag, ordered: No Amount, Past-due Close, No Contacts (Red first), then Stalled Deal, No Recent Activity, Stale Next Steps, Single Threaded (Yellow), then Zombie (Blue). A deal appears under every tag it has. Within each tag group, sort by platform_amt desc.]
+[Group deals by tag, ordered: No Amount, Past-due Close, No Contacts, No Line Items (Red first), then Stalled Deal, No Recent Activity, Stale Next Steps, Single Threaded, IPM Stale (Yellow), then Zombie (Blue). A deal appears under every tag it has. Within each tag group, sort by platform_amt desc.]
 
 *NO AMOUNT ([n] deals)*
   - <link|Deal Name> | [Stage] | Close [date]
@@ -229,6 +231,8 @@ TAG ID MAPPING (from hs_tag_ids property, semicolon-delimited):
 | 23357595 | No Recent Activity | Yellow |
 | 23361441 | Stale Next Steps | Yellow |
 | 23357078 | Zombie | Blue |
+| 24848661 | IPM Stale | Yellow |
+| 24848759 | No Line Items | Red |
 
 HubSpot Deal URL pattern: https://app.hubspot.com/contacts/44523005/record/0-3/{deal_id}
 Hygiene Dashboard: https://app.hubspot.com/reports-dashboard/44523005/view/19333613
@@ -334,6 +338,8 @@ No Recent Activity [n] $[sum]
 Stale Next Steps [n] $[sum]
 Single Threaded [n] $[sum]
 Zombie [n] $[sum]
+IPM Stale [n] $[sum]
+No Line Items [n] $[sum]
 
 ```
 [Omit any tag with 0 deals.]
