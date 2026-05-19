@@ -1,6 +1,6 @@
 # Event and Webinar List Management
 
-**Effective Date:** April 2026
+**Effective Date:** April 2026 (updated May 2026)
 **Audience:** Marketing, Revenue Ops, HubSpot Admins
 **Purpose:** Standard operating procedure for creating and maintaining event attendee lists in HubSpot
 
@@ -12,39 +12,73 @@
 
 ---
 
+## Event Attendance System (May 2026)
+
+The Event Attendance system replaces the manual list-creation process for new events. It consists of:
+
+- **Event Attendance custom object** (objectTypeId `2-62279031`) -- structured records with event_name, event_date, event_status, event_type, event_key, and event_source. Associated to contacts. This is the primary data store for event participation going forward.
+- **Google Sheet "Knotch Event Processor"** -- the operator interface for adding attendees, triggering processing, and reviewing results. Tabs: Event Setup, Attendees, Settings, Log, Reference.
+- **Apps Script backend** -- handles HubSpot search, Apollo enrichment, contact creation, Event Attendance record creation, list management, and RSVP property updates. Source: `Projects/Event-Processor/apps-script/`.
+- **Workflow `WF | Event | RSVP Processor`** (ID 1819563370) -- fires on form submissions, adds contacts to the `RSVP | Unprocessed` list (ID 1775), and sends a Slack notification for every RSVP. A dormant template branch is available to copy when you need event-specific actions (confirmation email, follow-up task). See [Workflow Setup Guide](../../Documentation/Events/RSVP-Processor-Workflow-Setup.md).
+
+### How It Works
+
+1. RSVPs come in via HubSpot forms. The workflow adds them to `RSVP | Unprocessed`.
+2. After the event, an operator opens the Google Sheet, clicks **Event Tools > Open Event Panel** to open the sidebar with action buttons, loads attendee data (Pull RSVPs, Pull from List, Import CSV, or paste directly), and clicks **Process Event**.
+3. The processor enriches unknown contacts (HubSpot search, then Apollo fallback), creates contacts as needed, creates Event Attendance records, builds static lists, updates RSVP properties, and creates follow-up tasks (configurable per status in the Settings tab).
+
+### Sheet UI
+
+- **Sidebar** (Event Tools > Open Event Panel): Action buttons for Process Event, Pull RSVPs, Pull from List, Import CSV, Refresh Owner List
+- **Purple headers** = required fields (email, status, event name/date/type). **Dark headers** = auto-filled by the processor.
+- **Example rows** (gray, italic, row 2 on each tab) are never processed -- they show the expected format.
+- **Hover tooltips** on every column header explain what the field is and whether it's required or automatic.
+- **Settings tab**: Table with checkboxes and dropdowns for follow-up task configuration per status. "Contact Owner" assigns the task to whoever owns the contact in HubSpot. Run **Refresh Owner List** to populate team dropdowns from HubSpot.
+- **Reference tab**: Built-in cheat sheet with naming conventions, status definitions, and quick-start instructions.
+
+### SOPs
+
+- **End-to-end job aid (quick reference):** [Documentation/Events/Event-Management-Job-Aid.md](../../Documentation/Events/Event-Management-Job-Aid.md)
+- **Setting up a new event:** [Documentation/Events/New-Event-Checklist.md](../../Documentation/Events/New-Event-Checklist.md)
+- **Processing attendees after an event:** [Documentation/Events/Post-Event-Processing.md](../../Documentation/Events/Post-Event-Processing.md)
+- **Building the RSVP workflow:** [Documentation/Events/RSVP-Processor-Workflow-Setup.md](../../Documentation/Events/RSVP-Processor-Workflow-Setup.md)
+
+---
+
 ## Naming Conventions
 
-### In-Person Events
+### Lists (New System -- May 2026+)
 
-**Prefix:** `EVT_`
-**Format:** `EVT_{Event_Name}_{Year}`
+The Google Sheet processor automatically creates lists using this convention:
+
+**Format:** `EVT_{Event_Name}_{Status}` (in-person) / `WEVT_{Event_Name}_{Status}` (online/webinar), plus `_All` list per event
 
 Examples:
 
-- `EVT_Cannes_Lions_2026`
-- `EVT_Adobe_Summit_2026`
-- `EVT_CES_2026`
-- `EVT_Knotch_ACE_Launch_2026`
+- `EVT_NYC_ACE_Launch_Jun_2026_Attended`
+- `EVT_NYC_ACE_Launch_Jun_2026_Registered`
+- `EVT_NYC_ACE_Launch_Jun_2026_All`
+- `WEVT_Secret_Weapon_Webinar_Mar_2026_All`
 
-### Webinars
+The canonical event name follows the format: `{City/Format} {Event Series} {Mon YYYY}`.
 
-**Prefix:** `WEVT_`
-**Format:** `WEVT_{Webinar_Name}_{Date}`
+### Forms
 
-For webinars, include the date (YYYY-MM or YYYY-MM-DD) since the same webinar series may recur:
+**Format:** `RSVP | {Canonical Event Name}`
 
-- `WEVT_Content_Intelligence_Masterclass_2026-03`
-- `WEVT_Quarterly_Product_Update_2026-Q2`
+Examples:
 
-### Sub-Lists (When Needed)
+- `RSVP | NYC ACE Launch Jun 2026`
+- `RSVP | P&C Summit Sep 2026`
 
-Append a suffix to distinguish attendance status:
+Each form includes a hidden field `event_rsvp_event_name` pre-filled with the canonical event name.
 
-- `EVT_Cannes_Lions_2026` — primary attendee list (confirmed attendees)
-- `EVT_Cannes_Lions_2026_Registered` — registered but attendance unknown
-- `EVT_Cannes_Lions_2026_NoShow` — registered but did not attend
+### Legacy Lists (Pre-May 2026)
 
-Only create sub-lists when tracking registrant-only and no-show data adds value. For most events, a single attendee list is sufficient — registrant-only and no-show lists historically add only ~18 VP+ contacts beyond attendee lists.
+Older lists use the `EVT_` and `WEVT_` prefix conventions. These are still valid and still in HubSpot -- do not rename or delete them. The backfill created Event Attendance records for all legacy list members.
+
+- `EVT_{Event_Name}_{Year}` -- in-person events (e.g., `EVT_Cannes_Lions_2026`)
+- `WEVT_{Webinar_Name}_{Date}` -- webinars (e.g., `WEVT_Content_Intelligence_Masterclass_2026-03`)
 
 ---
 
@@ -54,7 +88,9 @@ Always create **static (manual) lists**, not active lists. Event attendance is a
 
 ---
 
-## Step-by-Step: Creating an Event List
+## Manual Process (Legacy -- Pre-May 2026)
+
+For new events, use the Google Sheet processor instead (see SOPs above). The manual process below is retained for reference and edge cases where the processor is not suitable.
 
 ### 1. Prepare the Attendee Data
 
@@ -107,11 +143,11 @@ Add **all attendees** to the list — both pre-existing contacts (the "skips") a
 
 ## Current Inventory
 
-As of April 2026:
+As of May 2026:
 
-- **15** in-person event lists (`EVT_` prefix), ~5,512 contacts
-- **28** webinar lists (`WEVT_` prefix), ~1,291 attendees + registrants/no-shows
-- **~6,218** unique contacts across all event lists
+- **96** legacy lists (43 `EVT_`/`WEVT_` prefix + sub-lists), ~6,218 unique contacts
+- **4,464** Event Attendance custom object records (backfilled from legacy lists, covering 31 events)
+- New events create `(W)EVT_{Name}_{Status}` lists automatically via the processor
 
 ---
 
