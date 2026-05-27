@@ -74,11 +74,11 @@ Both fields are overridable if the auto-populated value is wrong.
 | Second meeting with same contact                                      | No                 | No               | --                                        |
 | Meeting with non-executive at an account that already has an IPM      | No                 | No               | --                                        |
 
-**Account IPM:** One per account. First time you sit down with anybody at that company.
+**Account IPM:** Manual tag — the rep stamps `ipm_held` on the deal. Guidance: this should be a new buyer group at the account, or 12+ months since the last engagement with the same buyer group. The rep can override the 12-month rule if the contacts are genuinely new to HubSpot (e.g., completely different people at the same company).
 
-**Deal IPM:** Awarded for any net-new Executive Sponsor brought into a deal at any point. This incentivizes multi-threading and executive access.
+**Deal IPM (Secondary Executive IPM):** Automated via workflow. Awarded when a net-new Executive Sponsor has their first completed meeting on a deal where the initial IPM was already held. The buyer role must be set to Executive Sponsor **before the meeting is marked complete** — if tagged after, the workflow has already fired and exited. No retroactive credit. This is intentional discipline enforcement.
 
-**Hard rule for both:** Buyer role MUST be updated on the contact in HubSpot. No buyer role = no IPM credit. This is the enforcement gate.
+**Hard rule for both:** Buyer role MUST be updated on the contact in HubSpot. No buyer role = no IPM credit. This is the enforcement gate. For Deal IPM specifically, the timing matters — tag the role before completing the meeting.
 
 ---
 
@@ -211,9 +211,10 @@ Both fields are overridable if the auto-populated value is wrong.
 
 ## Implementation Checklist
 
-- [ ] Delete or deactivate IPM Held stage in HubSpot (QA that existing deals don't break)
-- [ ] Rename IPM Set to "IPM" (or create new stage and migrate)
-- [ ] Create "First Meeting Date" deal property (date type, auto-populated from meetings)
+- [x] Delete or deactivate IPM Held stage in HubSpot (QA that existing deals don't break)
+- [x] Rename IPM Set to "IPM" (or create new stage and migrate)
+- [x] Create "First Meeting Date" deal property (date type, auto-populated from meetings)
+- [x] Delete `ipm_scheduled` (IPM Set On) property — deleted 2026-05-27, backup at `Archive/ipm_scheduled_backup_2026-05-27.csv`
 - [ ] Create "Qualification Date" deal property (date type, auto-populated on stage exit)
 - [ ] Update SPICED gate workflows to reflect single IPM stage
 - [ ] Update deal hygiene tags/dashboard for new stage structure

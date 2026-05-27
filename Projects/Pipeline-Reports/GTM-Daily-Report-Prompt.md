@@ -8,8 +8,8 @@ Use the HubSpot MCP connector (search_crm_objects, search_owners) to pull deal a
 
 - Pipeline: "72018330" = New/Expansion (the only pipeline we track)
 - Deal Stages: "152446547"=IPM, "152455272"=Qualification (Stage 1), "138620983"=Consensus (Stage 2), "138620984"=Proposal (Stage 3), "138620985"=Procurement (Stage 4), "138620988"=Closed Won, "138669962"=Closed Lost
-- Key properties: dealname, dealtype, dealstage, pipeline, amount, platform_amt, ipm_held, ipm_scheduled, closedate, createdate, hubspot_owner_id, hs_v2_date_entered_152455272 (date entered Qualification), lead_source, associated_company
-- "New Biz" = dealtype "New License". Everything else (Cross-sell, Upsell, Consulting, Winback, Partnership, Pilot) = "Upsell/Cross-sell"
+- Key properties: dealname, dealtype, dealstage, pipeline, amount, platform_amt, ipm_held, closedate, createdate, hubspot_owner_id, hs_v2_date_entered_152455272 (date entered Qualification), lead_source, associated_company
+- "New Biz" = dealtype "New License". Everything else (Cross-sell, Upsell, Consulting, Winback, Partnership) = "Upsell/Cross-sell"
 
 **New Business Team (for Sales Activity metrics):**
 Only track Sales Emails and External Meetings for these owners:

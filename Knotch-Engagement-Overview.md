@@ -389,14 +389,10 @@ Focus areas for net-new contact generation:
 
 - **Account Plan Properties:** Defined for account-level tracking
 - **Buying Group Blueprint:** Configured in HubSpot
-- **3 SPICED Gate Workflows:**
-  1. IPM → Qualification
-  2. Qualification → Consensus
-  3. Consensus → Proposal
 
 ### Stage Definitions
 
-| Stage                   | SPICED Gate                                 | Expected Outcome                              |
+| Stage                   | SPICED Focus                                | Expected Outcome                              |
 | ----------------------- | ------------------------------------------- | --------------------------------------------- |
 | IPM                     | Initial meeting held; situation captured    | Clear understanding of company situation      |
 | Qualification (Stage 1) | Pain and impact identified                  | Confirmed pain points and business impact     |
@@ -506,7 +502,7 @@ Focus areas for net-new contact generation:
 - [x] **Lifecycle Stage Cleanup** -- `account_stage` as source of truth, ownership model by role, unassigned marketing queue, 6 enforcement workflows built
 - [x] **CRM Ownership Cleanup** -- Reassignments executed (Tyler, unowned companies, lifecycle fixes)
 - [x] **MOPS Cleanup** -- Duplicate account analysis completed, ownership consolidation executed, email verification automated, persona/seniority workflows auto-classify on record create/update
-- [x] **Entry & Exit Criteria** -- Documented across all pipeline stages + outbound. SPICED gate workflows live
+- [x] **Entry & Exit Criteria** -- Documented across all pipeline stages + outbound
 - [x] **Sales Enablement Library** -- 12-part seller onboarding series + Apollo seller reference guide
 - [x] **Phone Enrichment** -- Coverage from 3.6% to 73.6% via Clay waterfall
 - [x] **Persona & Seniority Workflows** -- 13-branch persona (92.8% accuracy), 13-branch seniority (99.4% accuracy)
@@ -527,7 +523,7 @@ Focus areas for net-new contact generation:
 
 - [ ] **4. Claude Skill for Google Drive Reference** -- Build a custom Claude Code skill that uses the Google Drive MCP to retrieve Knotch engagement materials on demand (exit criteria, SPICED definitions, enablement content, pipeline rules). Enables natural-language queries like "what's my exit criteria for Consensus?"
 
-- [x] **5. Consolidate IPM Stages** -- DONE (2026-05-01). IPM Set and IPM Held merged into single IPM stage. IPM Held deleted from HubSpot. Auto-stamp workflows built: IPM Set On (copies first meeting date) and IPM Held On (stamps on stage exit). All enablement docs, agent prompts, and pipeline report prompts updated. Spec: `Documentation/CRM/Pipeline-Stage-Consolidation.md`.
+- [x] **5. Consolidate IPM Stages** -- DONE (2026-05-01). IPM Set and IPM Held merged into single IPM stage. IPM Held deleted from HubSpot. IPM Held On auto-stamp workflow stamps on stage exit. `ipm_scheduled` (IPM Set On) property deleted 2026-05-27 — no longer needed after consolidation; backup at `Archive/ipm_scheduled_backup_2026-05-27.csv` (491 deals). All enablement docs, agent prompts, and pipeline report prompts updated. Spec: `Documentation/CRM/Pipeline-Stage-Consolidation.md`.
 
 - [ ] **6. New Entrance Criteria for NB Pipeline** -- Define and enforce minimum requirements for deal creation in New/Expansion pipeline: persona match required (not "Other"), company must exist with enriched data, buyer role assigned on at least one contact, deal type + owner + association required. Build as addendum to pipeline consolidation doc + HubSpot validation workflow.
 
