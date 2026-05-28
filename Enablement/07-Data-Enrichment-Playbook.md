@@ -1,21 +1,28 @@
 # Data Enrichment Playbook
 
-**Effective Date:** March 2026
-**Audience:** GTM Team (Sales, Marketing, Ops)
-**Purpose:** Unified reference for data enrichment architecture, execution, and ongoing maintenance
+**Audience:** GTM Team (Sales, Marketing, Ops) | **Topics:** enrichment, Apollo, Clay, Breeze, phone, LinkedIn, email verification | **Last Updated:** May 2026
 
 ---
 
 ## Executive Summary
 
-Our data enrichment program transforms baseline contact and company records into a complete, actionable GTM database. We operate a three-source enrichment stack—Apollo (primary), Clay, and HubSpot Breeze, with AI/Claude post-processing—with clear ownership, field mappings, and execution timelines. This playbook documents the baseline gaps, target outcomes, credit budgets, and operational workflows.
+Our data enrichment program transforms baseline contact and company records into a complete, actionable GTM database. We operate a two-source enrichment stack — Apollo (primary) and HubSpot Breeze, with AI/Claude post-processing and a self-service Contact Enrichment Sheet for ad-hoc lookups. This playbook documents the baseline gaps, target outcomes, credit budgets, and operational workflows.
 
-**Current Baseline (Pre-Enrichment):**
+**Current Baseline (Pre-Enrichment, March 2026):**
 
 - 2,000 companies / 11,493 contacts
 - Critical gaps: Phone numbers 3.6% coverage (416 of 11,493)
 - Web technologies 46% coverage
 - LinkedIn URLs 76% coverage
+
+**Current Coverage (May 2026 Enrichment Sprint):**
+
+- ~2,005 companies / ~12,884 contacts
+- Phone: 73.6% (8,686 contacts) — Clay waterfall is the only viable phone path
+- LinkedIn URLs: 91.0% (10,743 contacts)
+- Employment history: 88.5% (11,403 contacts) — new field via Apollo
+- Apollo ID: 89.3% (11,500 contacts) — new field for direct lookups
+- Apollo credits used to date: ~12,512 | Remaining: ~440K of 456K
 
 ---
 
@@ -25,7 +32,7 @@ Our data enrichment program transforms baseline contact and company records into
 
 **Role:** Primary contact reachability and company firmographics enrichment
 **Status:** Active | Portal 44523005 connected
-**Credit Budget:** 452,896 available | Renews August 2026 | 1 credit = 1 contact
+**Credit Budget:** ~440,000 remaining (of 456K) | Renews August 2026 | 1 credit = 1 contact
 
 **Apollo Coverage:**
 
@@ -37,28 +44,35 @@ Our data enrichment program transforms baseline contact and company records into
 
 **Credit Projection Through August 2026:**
 
-- Projected usage: ~120,000 credits (26% of budget)
-- Remaining buffer: 332,000 credits (74%)
+- Credits used to date: ~12,512 (May 2026 sprint: ~11,500 employment history + ~1,012 other phases)
+- Remaining: ~440,000 credits
+- Remaining buffer: ~96% of total budget
 - Note: Company enrichment uses separate quota (no credit cost per company)
 
 **Fields Apollo Owns:**
 
-- Contact: `phone`, `mobilephone`, `hs_linkedin_url` (verification focus)
+- Contact: `phone`, `mobilephone`, `hs_linkedin_url` (verification focus), `employment_history` (JSON array), `apollo_id` (person ID for direct lookups)
 - Company: `founded_year`, `description`, `about_us`, `phone`, `linkedin_company_page`, `hs_linkedin_handle`, `twitter_handle`, `facebook_company_page`, `web_technologies`, `hs_keywords`, `sic_code_1`, `sic_code_2`, `zip`, `apollo_account_id`, `funding_stage`, `total_funding_amount`, `is_public`, `ticker`
 
 ---
 
-### 2. Clay (Enrichment Workflows & Analysis)
+### 2. Contact Enrichment Sheet (Self-Service Tool)
 
-**Role:** Workflow orchestration, data analysis, waterfall enrichment coordination
-**Status:** Active | Workflow integration enabled
+**Role:** Ad-hoc contact lookup, enrichment, email validation, and HubSpot push
+**Status:** Active | Google Sheets + Apps Script
+**Sheet:** [Knotch Contact Enrichment Tool](https://docs.google.com/spreadsheets/d/1n_m-0GODGS0Lj9OCm_HENahzFvVVIND11zVgqcE-6wo/edit?usp=sharing)
+**Walkthrough:** [Recording](https://drive.google.com/file/d/18C23TcPByFHDiJSrj1rUllDoneNF7eIU/view?usp=sharing)
+**Source code:** `Projects/Enrichment-Sheet/apps-script/` (Code.gs, HubSpot.gs, Apollo.gs, EmailValidation.gs, Enrichment.gs)
 
-**Clay Responsibilities:**
+**What it does:**
 
-- Orchestrate enrichment chains (fallback when Apollo partial)
-- Perform secondary data lookups and validation
-- Enable complex, multi-step enrichment logic
-- Support waterfall rules (e.g., try Apollo, then Clay, then manual)
+- Fill in name + company, highlight rows, run from the Enrichment menu
+- **Full Cascade:** Searches HubSpot first (free), then Apollo (1 credit per match) for contacts not found
+- **Email Validation:** Three-step check — format validation (free), domain MX record check (free), Apollo deliverability verification (1 credit)
+- **Push to HubSpot:** Smart upsert with dedup (email → LinkedIn → name+company search before creating). Fill Gaps Only mode never overwrites existing data.
+- **22 output columns:** Work email, personal email, direct phone, mobile phone, title, seniority, department, city/state/country, LinkedIn, Twitter, company, industry, employees, email status
+
+**When to use:** One-off contact lookups, pre-meeting enrichment, event list enrichment, email validation before outbound campaigns. For bulk enrichment (1,000+ contacts), use the Apollo HubSpot integration instead.
 
 ---
 
@@ -139,7 +153,7 @@ Our data enrichment program transforms baseline contact and company records into
 | `hs_linkedin_handle`        | Apollo            | Manual   | Fill if blank            |
 | `twitter_handle`            | Apollo            | Manual   | Fill if blank            |
 | `facebook_company_page`     | Apollo            | Manual   | Fill if blank            |
-| `web_technologies`          | Apollo            | Clay     | Fill if blank            |
+| `web_technologies`          | Apollo            | Manual   | Fill if blank            |
 | `hs_keywords`               | Apollo            | Manual   | Fill if blank            |
 | `sic_code_1`, `sic_code_2`  | Apollo            | Manual   | Fill if blank            |
 | `zip`                       | Apollo            | Breeze   | Fill if blank            |
@@ -175,6 +189,8 @@ Our data enrichment program transforms baseline contact and company records into
 | `jobtitle`                 | Apollo            | Breeze   | Overwrite (Apollo detects job changes) |
 | `department`               | Breeze            | Apollo   | Fill if blank                          |
 | `city`, `state`, `country` | Breeze            | Apollo   | Fill if blank                          |
+| `employment_history`       | Apollo            | N/A      | Always write (textarea, JSON array)    |
+| `apollo_id`                | Apollo            | N/A      | Always write                           |
 | `hs_persona`               | AI/Claude         | Manual   | Always write                           |
 | `enrichment_source`        | Workflow metadata | Manual   | Always write                           |
 | `last_enrichment_date`     | Workflow metadata | Manual   | Always write                           |
@@ -193,8 +209,8 @@ Our data enrichment program transforms baseline contact and company records into
 
 1. Apollo auto-enrichment via HubSpot native integration (no manual action needed)
 2. Breeze enrichment on company records (automatic)
-3. Clay waterfall enrichment for phone/LinkedIn gaps
-4. AI/Claude tier and persona scoring after step 3
+3. Contact Enrichment Sheet for targeted gaps (ad-hoc, self-service)
+4. AI/Claude tier and persona scoring after enrichment completes
 5. QA pass on sample (100 records minimum)
 
 **Expected Outcomes After Phase 1:**
@@ -230,6 +246,30 @@ Our data enrichment program transforms baseline contact and company records into
 **Quarterly:** Email verification + job-change detection (Apollo)
 **Quarterly:** Persona and ICP tier re-scoring (AI/Claude)
 **Annual:** Full re-enrichment pass (all fields, all records)
+
+---
+
+### May 2026 Enrichment Sprint Results
+
+**Executed:** May 28, 2026 | **Total credits used:** ~12,512 | **Remaining:** ~440K of 456K
+
+| Phase | Description                    | Method                              | Matched | Updated                        | Credits |
+| ----- | ------------------------------ | ----------------------------------- | ------- | ------------------------------ | ------- |
+| 4     | Company name cascade           | HubSpot associated company backfill | 1,429   | 1,429                          | 0       |
+| 5     | Location enrichment            | Apollo bulk_match                   | 329     | 24                             | ~329    |
+| 7     | Phone enrichment               | Apollo bulk_match                   | 683     | 0                              | ~683    |
+| 8     | Employment history + Apollo ID | Apollo bulk_match                   | 11,500  | 11,403 (history) / 11,500 (ID) | ~11,500 |
+
+**New HubSpot Properties Created:**
+
+- **`employment_history`** (textarea, max 65,000 chars) — Full employment history from Apollo as a JSON array. Each entry: `company` (string, required), `title` (string), `start` (YYYY-MM-01), `end` (YYYY-MM-01), `current` (boolean). Coverage: 11,403 / ~12,884 (88.5%).
+- **`apollo_id`** (single-line text) — Apollo person ID for direct future lookups, bypassing name/email matching. Coverage: 11,500 / ~12,884 (89.3%).
+
+**Key Findings:**
+
+- **Phone:** Apollo has zero phone data for contacts already missing phones. Clay waterfall is the only viable phone enrichment path.
+- **Location:** Apollo location data is sparse -- only 7% of matches (24 of 329) yielded new location data. Low ROI for location-specific enrichment via Apollo.
+- **Employment history:** Extremely rich -- 99.2% of Apollo matches have employment history data. High-value field for persona scoring, org-chart mapping, and deal context.
 
 ---
 
@@ -281,20 +321,23 @@ Our data enrichment program transforms baseline contact and company records into
 
 - Apollo does not expose email verification status (Verified/Unverified/Guessed) as a mappable CRM field. This data is visible inside Apollo but cannot be synced to HubSpot via the native integration. Workaround options include Apollo API scripting, Apollo Workflows (Integrations action, currently in Beta), or middleware tools like Zapier/Make.
 - Push records is currently disabled in sync settings. The "Push to HubSpot" workflow action will be skipped until push is enabled.
+- Apollo has zero phone data for contacts already missing phones in HubSpot. If Apollo doesn't have it on the first match, it won't have it later. Clay waterfall (Clay + Icypeas) is the only viable phone enrichment path.
+- Apollo location data is sparse. In the May 2026 sprint, only 7% of matched contacts yielded new city/state/country data. Do not rely on Apollo for location gap-filling.
+- Apollo employment history is extremely rich (99.2% of matches). Use `employment_history` for persona scoring, org-chart mapping, and competitive intelligence.
 
 ---
 
 ## Credit Budget & Projections
 
-**Total Budget:** 452,896 credits
+**Total Budget:** 456,000 credits
 **Renewal Date:** August 2026
+**Used to Date:** ~12,512 credits (May 2026 sprint) | **Remaining:** ~440,000 credits
 
-**Projected Usage Through August 2026:**
+**Usage Breakdown (as of May 2026):**
 
-- Phase 1 bulk enrichment: ~80,000 credits (batch of 11,493 contacts)
-- Phase 2 monthly net-new: ~40,000 credits (avg 300/month × 12 months)
-- **Total projected:** ~120,000 credits (26% of budget)
-- **Remaining buffer:** 332,000 credits (74%)
+- May 2026 enrichment sprint: ~12,512 credits (employment history, location, phone phases)
+- Phase 2 monthly net-new (ongoing): ~300/month
+- **Remaining buffer:** ~440,000 credits (~96% of budget)
 
 **Cost Model:**
 
@@ -349,7 +392,7 @@ Applies to: `jobtitle`
 
 ### "Always Write" (Computed/Metadata)
 
-Applies to: `apollo_account_id`, `account_tier`, `hs_ideal_customer_profile`, `hs_quick_context`, `hs_persona`, `enrichment_source`, `last_enrichment_date`
+Applies to: `apollo_account_id`, `apollo_id`, `employment_history`, `account_tier`, `hs_ideal_customer_profile`, `hs_quick_context`, `hs_persona`, `enrichment_source`, `last_enrichment_date`
 
 **Rule:** Always populate on enrichment execution, regardless of prior value.
 **Rationale:** These fields track enrichment status and tier/persona logic which should always reflect current state.
@@ -392,7 +435,7 @@ Applies to: `email`
 **Resolution:** Pause new enrichment, prioritize Tier I companies only, extend to Sept with Clay fallback.
 
 **Issue:** Phone numbers still low after enrichment
-**Resolution:** Clay waterfall secondary lookup, manual B2B directory research, outreach to sales for corrections.
+**Resolution:** Use Contact Enrichment Sheet for targeted lookups, manual B2B directory research, outreach to sales for corrections.
 
 **Issue:** Email verification returns high bounce rate
 **Resolution:** Quarterly re-verification, implement sender reputation warmup, review list quality.
@@ -406,7 +449,7 @@ Applies to: `email`
 
 - [x] Apollo HubSpot integration verified (Portal 44523005)
 - [ ] Breeze enrichment enabled on new companies
-- [ ] Clay account connected for waterfall workflows
+- [x] Contact Enrichment Sheet deployed and shared with team
 - [ ] AI/Claude scoring configured for async execution
 - [x] Field mapping validated (14 contact fields mapped, March 2026)
 - [x] Overwrite rules configured in Apollo settings (Job Title overwrite enabled, March 2026)
@@ -421,8 +464,12 @@ Applies to: `email`
 
 ## Related Documentation
 
-**See 15-AI-Skills-and-Knotch-MCP.md** for the Knotch MCP tools that support enrichment workflows — including `enrich_contact` (Apollo enrichment + HubSpot push), `clay_enrich` (Clay enrichment trigger), `find_phone` (phone waterfall lookup), and `lookup_contact` / `find_contact_by_details` (contact search before enrichment).
+**See 15-AI-Skills-and-Knotch-MCP.md** for the Knotch MCP tools that support enrichment workflows — including `enrich_contact` (Apollo enrichment + HubSpot push), `find_phone` (phone lookup), and `lookup_contact` / `find_contact_by_details` (contact search before enrichment).
+
+**See the [Contact Enrichment Sheet](https://docs.google.com/spreadsheets/d/1n_m-0GODGS0Lj9OCm_HENahzFvVVIND11zVgqcE-6wo/edit?usp=sharing)** for self-service contact lookup, enrichment, and email validation. [Watch the walkthrough recording](https://drive.google.com/file/d/18C23TcPByFHDiJSrj1rUllDoneNF7eIU/view?usp=sharing) before first use.
 
 ---
 
-**Questions?** Reach out to Ops. Last updated: March 2026.
+**See Documentation/Events/Event-Lifecycle.md** for how RevOps uses Apollo and Clay to validate event invite lists (Step 1: Align on Invite List) — verifying titles, seniority, company firmographics, and enriching missing contact data before events.
+
+**Questions?** Reach out to Ops. Last updated: May 28, 2026.

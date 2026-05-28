@@ -1,5 +1,7 @@
 # Seller Quick Reference Card
 
+**Audience:** Sellers | **Topics:** cheat sheet, daily checklist, key numbers, stages, hygiene, tools, quick reference | **Last Updated:** May 2026
+
 **One-page reference for daily deal management and weekly priorities.**
 
 ---
@@ -78,6 +80,8 @@
 - **Single Threaded** — One contact at Qual+ stage
 - **Stale Next Steps** — Next step date in past
 - **Past-Due Close** — Close date passed, deal open
+- **IPM Stale** — In IPM stage 14+ days without advancing
+- **No Line Items** — Past IPM with no line items attached
 
 **Action:** Review hygiene dashboard Friday; resolve all flags same day.
 
@@ -94,6 +98,9 @@
 | **Open Opportunity** | Active deal                                                                   |
 | **Bad Fit**          | Doesn't match ICP                                                             |
 | **Left Company**     | No longer at the company — suppress from outreach, re-enrich to find new role |
+| **Junk**             | Invalid record (spam, test data, non-person)                                  |
+
+**Hierarchy:** Lead status only moves up: Cold → Attempted → Connected → Meeting Booked → Open Opportunity. Workflows enforce this — a Connected contact cannot regress to Attempted. Bad Fit, Left Company, and Junk are terminal statuses outside the progression.
 
 ---
 
@@ -117,17 +124,22 @@ Decision Maker | Economic Buyer | Champion | Executive Sponsor | Influencer | Te
 
 ## Tools & Access
 
-| Tool                          | Primary Use                                                                                                                                                                                                                                        |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **HubSpot** (Portal 44523005) | Deal, contact, company data (single source of truth)                                                                                                                                                                                               |
-| **Otter.ai**                  | Meeting recording + transcription. Auto-creates meeting in HubSpot, attaches notes.                                                                                                                                                                |
-| **Granola**                   | Live note-taker. Run during every meeting. 1-hour window to finalize into template. Notes attach to contact/account/deal.                                                                                                                          |
-| **Claude**                    | AI assistant. Connected to Granola, HubSpot, and all tools. Ask questions, prep for meetings, take actions. See **15-AI-Skills-and-Knotch-MCP.md** for full skill reference (Deal Analysis, Call Prep, RevOps Documentation) and MCP tool details. |
-| **Apollo**                    | Prospecting (find contacts), enrichment (phone/email), outbound sequences                                                                                                                                                                          |
-| **Clay**                      | Advanced enrichment workflows                                                                                                                                                                                                                      |
-| **HubSpot Breeze**            | Native enrichment (firmographics)                                                                                                                                                                                                                  |
+| Tool                          | Primary Use                                                                                                                                                                                                                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **HubSpot** (Portal 44523005) | Deal, contact, company data (single source of truth)                                                                                                                                                                                                                                            |
+| **Otter.ai**                  | Meeting recording + transcription. Auto-creates meeting in HubSpot, attaches notes.                                                                                                                                                                                                             |
+| **Granola**                   | Live note-taker. Run during every meeting. 1-hour window to finalize into template. Notes attach to contact/account/deal.                                                                                                                                                                       |
+| **Claude**                    | AI assistant. Connected to Granola, HubSpot, and all tools. Ask questions, prep for meetings, take actions. See **15-AI-Skills-and-Knotch-MCP.md** for full skill reference (Deal Analysis, Call Prep, RevOps Documentation) and MCP tool details.                                              |
+| **Apollo**                    | Prospecting (find contacts), enrichment (phone/email), outbound sequences                                                                                                                                                                                                                       |
+| **Contact Enrichment Sheet**  | Self-service contact lookup, enrichment, email validation, push to HubSpot ([Sheet](https://docs.google.com/spreadsheets/d/1n_m-0GODGS0Lj9OCm_HENahzFvVVIND11zVgqcE-6wo/edit?usp=sharing) \| [Walkthrough](https://drive.google.com/file/d/18C23TcPByFHDiJSrj1rUllDoneNF7eIU/view?usp=sharing)) |
+| **HubSpot Breeze**            | Native enrichment (firmographics)                                                                                                                                                                                                                                                               |
 
-**Enrichment Stack:** Apollo + Clay | **Meeting Stack:** Otter.ai + Granola | **AI Assistant:** Claude
+**Enrichment Stack:** Apollo + Enrichment Sheet | **Meeting Stack:** Otter.ai + Granola | **AI Assistant:** Claude
+
+**Enrichment Fields on Contact Records:**
+
+- **`employment_history`** — JSON array of past and current companies from Apollo. Shows full career history (company, title, start/end dates, current flag). Use this to identify warm intro paths through shared employers or to understand a contact's background before outreach.
+- **`apollo_id`** — Stored on contact records for instant Apollo lookups. Enables direct enrichment without name/email matching.
 
 ---
 
@@ -194,6 +206,21 @@ Use quick filter to view only your deals.
 
 ---
 
+## Events
+
+Events follow a six-step lifecycle managed by RevOps. As a seller, your touchpoints are:
+
+- **Step 1:** Align on invite list — flag accounts you want included or excluded
+- **Step 4a:** Owner follow-up — you may get a task to personally follow up with your accounts after invites go out
+- **Step 5:** RSVPs hit Slack in real-time — watch for your accounts accepting
+- **Step 6a:** Post-event follow-up — you may get a task to follow up with attendees or no-shows
+
+Event Attendance records and timeline notes are created automatically on every contact. Lists are auto-generated by status (Attended, No Show, etc.).
+
+**Full lifecycle:** Documentation/Events/Event-Lifecycle.md
+
+---
+
 ## Pro Tips
 
 1. **Friday scrub eliminates 90% of issues.** Make it a habit.
@@ -212,4 +239,12 @@ Use quick filter to view only your deals.
 
 **Sales Manager:** [Your Manager] — Territory, accounts, coaching
 **Sales Operations:** Sales enablement, reports, CRM issues
-**RevOps / IT:** Tool access, Apollo/Clay support
+**RevOps / IT:** Tool access, Apollo support, Enrichment Sheet questions
+
+---
+
+## Related Documents
+
+- **Deal Process and SPICED** (03) — Full SPICED methodology and stage exit criteria
+- **Pipeline Hygiene and Scoring** (04) — Hygiene tag details and pipeline scoring model
+- **Seller Tool Setup** (16) — Tool installation and configuration guide

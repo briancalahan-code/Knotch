@@ -1,5 +1,9 @@
 # Deal Process and SPICED Framework
 
+**Audience:** Sellers, Sales Managers | **Topics:** SPICED, pipeline, stages, exit criteria, qualification, forecast | **Last Updated:** May 2026
+
+---
+
 ## SPICED Framework Overview
 
 SPICED is the structured methodology Knotch uses to document opportunity qualification and manage deal progression. Each letter represents a critical dimension of the deal:
@@ -461,52 +465,6 @@ Map stakeholders to pipeline stage. This guides outreach and buying group compos
 - IT security or compliance (if applicable)
 - Internal contract signer (CFO, VP Finance, CMO)
   **Activity:** Contract negotiation, vendor onboarding
-
----
-
-## SPICED Gate Workflows
-
-Knotch uses three automation workflows in HubSpot to enforce stage gate rules and prevent premature advancement.
-
-### Workflow 1: Qualification Gate (Stage 1 Entry)
-
-**Trigger:** Deal moves to Qualification stage
-
-**Rules:**
-
-- STOP if Situation field is empty → send reminder to AE
-- STOP if Pain field is empty → send reminder to AE
-- STOP if Buying group has 0 contacts → send reminder to AE
-- STOP if Deal Amount is $0 or empty → send reminder to AE
-- ALLOW if all fields populated → send internal notification to manager
-
-**Outcome:** Deal cannot stay in Qualification without required data.
-
-### Workflow 2: Consensus Gate (Stage 2 Entry)
-
-**Trigger:** Deal moves to Consensus stage
-
-**Rules:**
-
-- STOP if SPICED fields (all 5 elements) are empty → send reminder to AE and manager
-- STOP if Buying group has <2 contacts → send reminder to AE
-- STOP if Champion field is empty → send reminder to AE
-- ALLOW if all criteria met → send internal notification; update forecast category to Best Case
-
-**Outcome:** Full SPICED and multi-contact buying group required before consensus.
-
-### Workflow 3: Proposal Gate (Stage 3 Entry)
-
-**Trigger:** Deal moves to Proposal + Business Case stage
-
-**Rules:**
-
-- STOP if Economic Buyer field is empty → send reminder to AE
-- STOP if Decision Criteria field is empty → send reminder to AE
-- STOP if Buying group has <3 contacts → send reminder to AE
-- ALLOW if all criteria met → send internal notification; update forecast category to Commit; trigger proposal template distribution
-
-**Outcome:** Economic buyer engagement and complete decision criteria required before proposal.
 
 ---
 

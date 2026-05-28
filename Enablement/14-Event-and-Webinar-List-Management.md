@@ -1,8 +1,6 @@
 # Event and Webinar List Management
 
-**Effective Date:** April 2026 (updated May 2026)
-**Audience:** Marketing, Revenue Ops, HubSpot Admins
-**Purpose:** Standard operating procedure for creating and maintaining event attendee lists in HubSpot
+**Audience:** Marketing, RevOps, Admins | **Topics:** events, webinars, lists, Event Attendance, RSVP, Google Sheet processor | **Last Updated:** May 2026
 
 ---
 
@@ -19,7 +17,7 @@ The Event Attendance system replaces the manual list-creation process for new ev
 - **Event Attendance custom object** (objectTypeId `2-62279031`) -- structured records with event_name, event_date, event_status, event_type, event_key, and event_source. Associated to contacts. This is the primary data store for event participation going forward.
 - **Google Sheet "Knotch Event Processor"** -- the operator interface for adding attendees, triggering processing, and reviewing results. Tabs: Event Setup, Attendees, Settings, Log, Reference.
 - **Apps Script backend** -- handles HubSpot search, Apollo enrichment, contact creation, Event Attendance record creation, list management, and RSVP property updates. Source: `Projects/Event-Processor/apps-script/`.
-- **Workflow `WF | Event | RSVP Processor`** (ID 1819563370) -- fires on form submissions, adds contacts to the `RSVP | Unprocessed` list (ID 1775), and sends a Slack notification for every RSVP. A dormant template branch is available to copy when you need event-specific actions (confirmation email, follow-up task). See [Workflow Setup Guide](../../Documentation/Events/RSVP-Processor-Workflow-Setup.md).
+- **Workflow `WF | Event | RSVP Processor`** (ID 1819563370) -- fires on form submissions, adds contacts to the `RSVP | Unprocessed` list (ID 1775), and sends a Slack notification for every RSVP. A dormant template branch is available to copy when you need event-specific actions (confirmation email, follow-up task). See **RSVP Processor Workflow Setup** (Documentation/Events/RSVP-Processor-Workflow-Setup.md).
 
 ### How It Works
 
@@ -38,10 +36,11 @@ The Event Attendance system replaces the manual list-creation process for new ev
 
 ### SOPs
 
-- **End-to-end job aid (quick reference):** [Documentation/Events/Event-Management-Job-Aid.md](../../Documentation/Events/Event-Management-Job-Aid.md)
-- **Setting up a new event:** [Documentation/Events/New-Event-Checklist.md](../../Documentation/Events/New-Event-Checklist.md)
-- **Processing attendees after an event:** [Documentation/Events/Post-Event-Processing.md](../../Documentation/Events/Post-Event-Processing.md)
-- **Building the RSVP workflow:** [Documentation/Events/RSVP-Processor-Workflow-Setup.md](../../Documentation/Events/RSVP-Processor-Workflow-Setup.md)
+- **Event Lifecycle** (Documentation/Events/Event-Lifecycle.md) — End-to-end six-step workflow
+- **Event Management Job Aid** (Documentation/Events/Event-Management-Job-Aid.md) — Quick reference checklists
+- **New Event Checklist** (Documentation/Events/New-Event-Checklist.md) — Setting up a new event
+- **Post-Event Processing** (Documentation/Events/Post-Event-Processing.md) — Processing attendees after an event
+- **RSVP Processor Workflow Setup** (Documentation/Events/RSVP-Processor-Workflow-Setup.md) — Building the RSVP workflow
 
 ---
 
@@ -166,3 +165,10 @@ To pull list membership programmatically, use the HubSpot API:
 ```
 GET /crm/v3/lists/{listId}/memberships
 ```
+
+---
+
+## Related Documents
+
+- **Data Enrichment Playbook** (07) — Enrichment tools used during event processing (Apollo, Clay)
+- **Workflow Automation Reference** (09) — RSVP Processor Workflow details and trigger logic

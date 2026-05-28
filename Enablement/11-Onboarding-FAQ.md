@@ -1,5 +1,7 @@
 # Onboarding FAQ: Your Go-To Reference Guide
 
+**Audience:** New sellers, all roles | **Topics:** FAQ, onboarding, getting started, new rep, CRM basics | **Last Updated:** May 2026
+
 This document answers the most common questions new sellers and teammates ask during onboarding. Organized by topic for easy navigation.
 
 ---
@@ -130,7 +132,7 @@ Deals move sequentially (no skipping stages). Typically 60-day sales cycle targe
 
 **A:** Deal hygiene tags are **automated flags** that surface deals needing immediate action:
 
-1. **No Amount** — Deal record has no amount filled in. Stage gate failure. Do not progress deal without amount.
+1. **No Amount** — Deal record has no amount filled in. Do not progress deal without amount.
 2. **Stalled** — Deal has been in the same stage for 45+ days with no progression (momentum loss).
 3. **Zombie** — Deal shows zero logged activity for 45+ days (at risk of being lost silently).
 4. **No Recent Activity** — No activity logged in 21+ days (prospect engagement has stalled).
@@ -258,11 +260,19 @@ The same person can have both a persona and one or more buying roles. Personas h
 
 **Note:** Alysio has been discontinued. Apollo and Clay are the primary enrichment sources for new data.
 
+### Q: What enrichment data is available on contact records?
+
+**A:** Beyond phone, email, and LinkedIn URL, two fields were added in May 2026:
+
+- **`employment_history`** — A JSON array of past and current companies from Apollo (company name, title, start/end dates, whether the role is current). Available on ~11,403 contacts. Use this to find warm intro paths through shared employers or understand a contact's career background before outreach.
+- **`apollo_id`** — Apollo's unique identifier, stored on ~11,500 contacts. Enables instant Apollo lookups without name/email matching. Used by the enrichment tools for faster re-enrichment.
+- **`hs_lead_status`** — Lead status is now populated for all contacts. Values: Cold, Attempted, Connected, Meeting Booked, Open Opportunity, Bad Fit, Left Company, Junk. Status only moves up the hierarchy (Cold → Attempted → Connected → Meeting Booked → Open Opportunity).
+
 ### Q: Why is enrichment important?
 
 **A:** Without accurate phone numbers and email addresses, **outbound prospecting doesn't work.**
 
-Knotch's current phone coverage is approximately 3.6% of contacts. The enrichment initiative is working to increase phone coverage to **40–60%** via Apollo enrichment, which dramatically improves:
+Knotch's current phone coverage is approximately **73.6%** of contacts (8,686 of 11,801), up from 3.6% pre-enrichment. Ongoing enrichment via Apollo and Clay continues to improve coverage, which directly impacts:
 
 - Outbound cold-call effectiveness
 - Ability to reach buyers directly (not just email)
@@ -492,3 +502,12 @@ Tailor messaging and value prop to persona. C-suite cares about ROI and strategi
 **Questions about enablement, methodology, or product?** Contact your Sales Manager or the Sales Enablement team.
 
 **Technical issues with tools (Apollo, Clay)?** Submit a ticket to your IT/RevOps team.
+
+---
+
+## Related Documents
+
+- **Knotch GTM Overview** (01) — Company, product, and engagement context
+- **Deal Process and SPICED** (03) — Full SPICED methodology deep dive
+- **Seller Quick Reference** (12) — Daily cheat sheet for deal management
+- **Seller Tool Setup** (16) — First-week tool setup instructions

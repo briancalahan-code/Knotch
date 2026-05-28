@@ -1,5 +1,9 @@
 # Knotch GTM Overview
 
+**Audience:** All roles | **Topics:** company, product, engagement scope, workstreams, team | **Last Updated:** May 2026
+
+---
+
 ## About Knotch
 
 Knotch is a **content intelligence platform** that provides an independent standard for measuring content marketing ROI across owned and paid channels. We help enterprise and mid-market brands understand exactly which content drives business outcomes, enabling them to optimize marketing spend, improve content decisions, and prove marketing value to the enterprise.
@@ -134,6 +138,10 @@ The typical deal progression follows our SPICED-based deal framework (see 03-Dea
 
 ---
 
-**For more detail on CRM architecture, see 02-CRM-Architecture-and-Standards.md**
+## Related Documents
 
-**For deal methodology and SPICED framework, see 03-Deal-Process-and-SPICED.md**
+- **CRM Architecture and Standards** (02) — HubSpot object model, properties, naming rules
+- **Deal Process and SPICED** (03) — Sales methodology and pipeline stages
+- **Onboarding FAQ** (11) — Common questions from new team members
+- **Seller Quick Reference** (12) — Daily cheat sheet for sellers
+- **Event Lifecycle** (Documentation/Events/Event-Lifecycle.md) — End-to-end event workflow

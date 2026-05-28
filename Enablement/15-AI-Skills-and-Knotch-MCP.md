@@ -1,8 +1,6 @@
 # AI Skills and Knotch MCP Reference
 
-**Effective Date:** April 2026
-**Audience:** Sales, Marketing, Revenue Ops, HubSpot Admins
-**Purpose:** Complete reference for the three AI skills (Deal Analysis, Call Prep, RevOps Documentation), the Knotch MCP server, installation, and daily workflows
+**Audience:** All roles | **Topics:** Claude, AI skills, MCP, Deal Analysis, Call Prep, RevOps Documentation | **Last Updated:** April 2026
 
 ---
 
@@ -107,7 +105,7 @@ Acts as a live reference desk for Knotch GTM process — pipeline stages, SPICED
 
 ### How It Answers
 
-Routes the question to the right document via a topic map, pulls the specific section (not the whole doc), and cites with a live Drive link every time. Includes a built-in fallback: if Drive MCP isn't connected, it walks you through reconnecting and meanwhile answers from embedded definitions for the most common asks (pipeline stages, SPICED elements, the seven buying roles, ICP tier benchmarks, the eight hygiene tags).
+Routes the question to the right document via a topic map, pulls the specific section (not the whole doc), and cites with a live Drive link every time. Includes a built-in fallback: if Drive MCP isn't connected, it walks you through reconnecting and meanwhile answers from embedded definitions for the most common asks (pipeline stages, SPICED elements, the seven buying roles, ICP tier benchmarks, the ten hygiene tags).
 
 ### Why It Matters
 
@@ -133,6 +131,16 @@ A Model Context Protocol server that gives Claude direct, scoped access to the K
 - **Write tools** push only to HubSpot
 - **Enrichment tools** coordinate Apollo and Clay automatically and write results back to HubSpot
 - Clay enrichment is async with a 50-second wait; if it times out, you get a correlation ID to poll later
+- Apollo returns **employment history** (JSON array with company, title, start, end, current fields) and **Apollo ID** for direct lookups — stored on contact records as `employment_history` and `apollo_id`
+
+### Enrichment Coverage (as of May 2026)
+
+| Data Point             | Contacts | Coverage |
+| ---------------------- | -------- | -------- |
+| **Employment History** | 11,403   | ~97%     |
+| **Apollo ID**          | 11,500   | ~97%     |
+
+Apollo ID on a contact record bypasses name/email matching entirely, enabling instant lookups via `lookup_contact`.
 
 ---
 
@@ -149,11 +157,11 @@ A Model Context Protocol server that gives Claude direct, scoped access to the K
 
 #### Enrichment (Read + Write)
 
-| Tool                | What It Does                                                                                                                                                                                                        | Key Inputs                                                                                    | Returns                                                  |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `enrich_contact`    | Fill empty HubSpot fields (jobtitle, phone, LinkedIn, location, company) from Apollo + Clay. Writes results back to HubSpot. See Document 07 (Data Enrichment Playbook) for the full enrichment stack architecture. | hubspot_contact_id                                                                            | Diff of what was filled                                  |
-| `clay_enrich`       | Direct Clay enrichment for phone or email. Waits up to 50s.                                                                                                                                                         | first_name, last_name, company_domain, optional linkedin_url, requested_data (phone or email) | Enriched data inline, OR a correlationId if it times out |
-| `check_clay_result` | Poll for an async Clay result that timed out.                                                                                                                                                                       | correlation_id                                                                                | Enriched data if ready, status pending otherwise         |
+| Tool                | What It Does                                                                                                                                                                                                                                                                                                                                                                 | Key Inputs                                                                                    | Returns                                                  |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `enrich_contact`    | Fill empty HubSpot fields (jobtitle, phone, LinkedIn, location, company, employment history) from Apollo + Clay. Writes results back to HubSpot. Apollo now returns employment history as a JSON array (company, title, start, end, current fields) and Apollo ID for direct lookups. See Document 07 (Data Enrichment Playbook) for the full enrichment stack architecture. | hubspot_contact_id                                                                            | Diff of what was filled                                  |
+| `clay_enrich`       | Direct Clay enrichment for phone or email. Waits up to 50s.                                                                                                                                                                                                                                                                                                                  | first_name, last_name, company_domain, optional linkedin_url, requested_data (phone or email) | Enriched data inline, OR a correlationId if it times out |
+| `check_clay_result` | Poll for an async Clay result that timed out.                                                                                                                                                                                                                                                                                                                                | correlation_id                                                                                | Enriched data if ready, status pending otherwise         |
 
 #### Deal Intelligence (Read-Only)
 

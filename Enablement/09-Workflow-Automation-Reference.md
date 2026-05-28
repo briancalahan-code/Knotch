@@ -1,8 +1,6 @@
 # Workflow Automation Reference
 
-**Effective Date:** March 2026
-**Audience:** Sales, Marketing, Revenue Ops, HubSpot Admins
-**Purpose:** Complete reference for all automated workflows, trigger logic, and expected behavior
+**Audience:** Sales, Marketing, RevOps, Admins | **Topics:** workflow, automation, persona, seniority, deal hygiene, ownership, RSVP | **Last Updated:** May 2026
 
 ---
 
@@ -15,7 +13,7 @@ HubSpot workflows automate contact classification, enrichment tracking, and deal
 1. Persona Auto-Assignment
 2. Seniority Auto-Assignment
 3. Enrichment Tracking
-4. SPICED Gate Validation + Deal Pipeline Hygiene
+4. Deal Pipeline Hygiene
 
 ---
 
@@ -274,7 +272,6 @@ The workflow uses **11 branches + default** in priority order. First matching br
 
 1. Set `enrichment_source` = "Apollo"
 2. Set `last_enrichment_date` = current date/time
-3. Optional: Set `enrichment_status` = "Complete"
 
 **Rationale:**
 
@@ -303,132 +300,6 @@ The workflow uses **11 branches + default** in priority order. First matching br
 
 ---
 
-## SPICED Gate Validation Workflows
-
-**Type:** Deal-based
-**Trigger:** Deal stage transition
-**Action:** Validate prerequisite fields and conditionally advance or block progression
-**Result:** Enforces sales discipline and deal hygiene
-
----
-
-### Gate 1: IPM → Qualification
-
-**Prerequisite Fields (all must be true):**
-
-- [ ] `hs_spiced_situation` is not empty (qualitative description of customer situation)
-- [ ] `hs_spiced_pain` is not empty (key pain point identified)
-- [ ] Deal has ≥1 contact associated with buying role (`hs_persona` ∈ [persona_1, persona_2, persona_3, persona_6, persona_9])
-
-**If All Prerequisites Met:**
-
-- Advance deal to Qualification stage
-- Set `gate_1_passed` = true
-- Set `gate_1_passed_date` = today
-
-**If Prerequisites NOT Met:**
-
-- Revert deal to IPM stage
-- Log activity: "Gate 1 validation failed: missing SPICED or contact role"
-- Notify AE in Slack (optional): "@[AE Name] Deal [deal name] missing SPICED documentation or buying committee member"
-
-**Example Scenario:**
-
-- AE moves deal "Acme Inc" from IPM to Qualification
-- Workflow checks: Situation? ✓ Pain? ✓ Buying role contact? ✗ (only coordinators associated)
-- Workflow reverts to IPM, sends notification
-- AE adds contact "CMO, Acme" to deal, re-moves to Qualification
-- Gate 1 now passes ✓
-
----
-
-### Gate 2: Qualification → Consensus
-
-**Prerequisite Fields (all must be true):**
-
-- [ ] Complete SPICED documentation: Situation ✓, Pain ✓, Impact ✓, Consequences ✓, Economic buyer identified ✓
-- [ ] Deal has ≥2 contacts with buying roles (`hs_persona` ∈ [persona_1, persona_2, persona_3, persona_6, persona_9])
-- [ ] Champion identified (contact tagged as persona_1 OR persona_9, flagged `is_champion` = true)
-- [ ] `budget_confirmed` = true (AE documents approval or estimated budget)
-
-**If All Prerequisites Met:**
-
-- Advance deal to Consensus stage
-- Set `gate_2_passed` = true
-- Set `gate_2_passed_date` = today
-- Create Slack alert: "Deal [name] advanced to Consensus (2+ contacts, champion confirmed)"
-
-**If Prerequisites NOT Met:**
-
-- Revert to Qualification
-- Log activity: "Gate 2 validation failed: SPICED incomplete, <2 contacts, or no champion"
-- List missing fields in activity log
-
-**Example Scenario:**
-
-- AE moves "Acme Inc" from Qualification to Consensus
-- Workflow checks:
-  - Full SPICED? ✓
-  - 2+ buying roles? CMO + VP Content = ✓
-  - Champion? VP Content = ✓
-  - Budget? Not yet = ✗
-- Gate 2 fails; revert to Qualification with note: "Budget not confirmed"
-- AE documents "$50k approved budget Q2" in deal, re-advances
-- Gate 2 now passes ✓
-
----
-
-### Gate 3: Consensus → Proposal
-
-**Prerequisite Fields (all must be true):**
-
-- [ ] Economic buyer actively engaged (contact tagged persona_9 OR persona_2 with last activity <7 days)
-- [ ] Decision criteria documented (`decision_criteria` field populated)
-- [ ] Deal has ≥3 unique contacts with buying roles
-- [ ] No open objections (`decision_blockers` field is empty or marked "Resolved")
-
-**If All Prerequisites Met:**
-
-- Advance deal to Proposal stage
-- Set `gate_3_passed` = true
-- Set `gate_3_passed_date` = today
-- Create Slack alert: "Deal [name] ready for Proposal (EB engaged, 3 contacts, decision criteria clear)"
-
-**If Prerequisites NOT Met:**
-
-- Revert to Consensus
-- Log activity: "Gate 3 validation failed: EB not engaged, decision criteria missing, or <3 contacts"
-
-**Example Scenario:**
-
-- AE moves "Acme Inc" from Consensus to Proposal
-- Workflow checks:
-  - EB engaged? CMO activity 4 days ago = ✓
-  - Decision criteria? "Reduce lead cost + integrate with HubSpot" = ✓
-  - 3+ contacts? CMO + VP Content + Marketing Ops = ✓
-  - Open blockers? "Pricing approval pending" = ✗
-- Gate 3 fails; revert to Consensus
-- AE resolves pricing objection, marks blocker as "Resolved"
-- Re-advances to Proposal; Gate 3 now passes ✓
-
----
-
-### Gate Field Reference
-
-| Field                      | Type         | Required For | Example                                                                                                  |
-| -------------------------- | ------------ | ------------ | -------------------------------------------------------------------------------------------------------- |
-| `hs_spiced_situation`      | Text         | Gate 1+      | "Acme manages 12 brands with disparate content calendars; no centralized intelligence."                  |
-| `hs_spiced_pain`           | Text         | Gate 1+      | "Marketing team spends 30% of time on manual competitive research instead of strategy."                  |
-| `hs_spiced_impact`         | Text         | Gate 2+      | "If unresolved: $500k annually in lost efficiency; delayed campaign launches; competitive response lag." |
-| `hs_spiced_consequences`   | Text         | Gate 2+      | "Resolved: 20% time savings, 2-week faster campaign launches, real-time competitive visibility."         |
-| `hs_spiced_economic_buyer` | Contact Link | Gate 2+      | CMO (link to contact record)                                                                             |
-| `champion_contact`         | Contact Link | Gate 2+      | VP Content (link to contact record)                                                                      |
-| `budget_confirmed`         | Boolean      | Gate 2+      | true                                                                                                     |
-| `decision_criteria`        | Text         | Gate 3+      | "Reduce lead acquisition cost to <$150; integrate with HubSpot; customer success support."               |
-| `decision_blockers`        | Text         | Gate 3+      | "Pricing approval pending CEO sign-off" (or "Resolved" / empty)                                          |
-
----
-
 ## Deal Pipeline Hygiene Tag Automation
 
 **Type:** Deal-based
@@ -440,16 +311,18 @@ The workflow uses **11 branches + default** in priority order. First matching br
 
 ### Hygiene Tags & Auto-Apply Rules
 
-| Tag Name                    | Apply Condition                                           | Clear Condition                      |
-| --------------------------- | --------------------------------------------------------- | ------------------------------------ |
-| `stale_lead`                | No contact activity >21 days + deal age >30 days          | Last contact activity ≤7 days        |
-| `no_buying_committee`       | 0 contacts with buying role personas                      | 1+ contact with buying role assigned |
-| `budget_not_confirmed`      | `budget_confirmed` = false and deal in Qualification+     | `budget_confirmed` = true            |
-| `missing_spiced_situation`  | Deal in Qualification+ AND `hs_spiced_situation` is empty | `hs_spiced_situation` populated      |
-| `missing_spiced_pain`       | Deal in Qualification+ AND `hs_spiced_pain` is empty      | `hs_spiced_pain` populated           |
-| `missing_decision_criteria` | Deal in Consensus+ AND `decision_criteria` is empty       | `decision_criteria` populated        |
-| `eb_not_engaged`            | Deal in Consensus+ AND EB last activity >14 days          | EB activity ≤7 days                  |
-| `single_contact`            | Deal has 1 contact only                                   | Deal has 2+ contacts                 |
+| Tag Name               | Apply Condition                         | Clear Condition                   |
+| ---------------------- | --------------------------------------- | --------------------------------- |
+| **No Amount**          | Deal amount is empty                    | Amount populated                  |
+| **Stalled**            | Same stage for 45+ days                 | Stage changes                     |
+| **Zombie**             | No activity for 45+ days                | Activity logged                   |
+| **No Recent Activity** | No activity for 21+ days                | Activity logged                   |
+| **No Contacts**        | Zero contacts on deal                   | 1+ contact associated             |
+| **Single Threaded**    | One contact at Qualification+ stage     | 2+ contacts associated            |
+| **Stale Next Steps**   | Next step date in past                  | Next step date updated to future  |
+| **Past-Due Close**     | Close date passed, deal still open      | Close date updated or deal closed |
+| **IPM Stale**          | In IPM stage 14+ days without advancing | Deal advances past IPM            |
+| **No Line Items**      | Past IPM with no line items attached    | Line items added                  |
 
 ---
 
@@ -457,15 +330,16 @@ The workflow uses **11 branches + default** in priority order. First matching br
 
 **Scenario: New deal "Acme Inc" created in IPM stage**
 
-| Event                                       | Tags Applied                                              | Tags Removed          | Reason                             |
-| ------------------------------------------- | --------------------------------------------------------- | --------------------- | ---------------------------------- |
-| Deal created, 0 contacts                    | `no_buying_committee`, `single_contact`                   | —                     | No contacts assigned yet           |
-| CMO contact added                           | ✓ `no_buying_committee` removed                           | `no_buying_committee` | 1 buying role contact now assigned |
-| Deal moved to Qualification, SPICED missing | `missing_spiced_situation`, `missing_spiced_pain` added   | —                     | Gate validation requires these     |
-| AE documents Situation + Pain               | `missing_spiced_situation`, `missing_spiced_pain` removed | —                     | Fields populated by AE             |
-| 14 days pass, no EB activity                | `eb_not_engaged` applied                                  | —                     | EB (CMO) last activity >14d        |
-| AE calls CMO (activity logged)              | ✓ `eb_not_engaged` removed                                | `eb_not_engaged`      | Recent EB activity logged          |
-| Deal moves to Closed/Won                    | All tags removed                                          | (all)                 | Lifecycle complete                 |
+| Event                               | Tags Applied                   | Tags Removed           | Reason                              |
+| ----------------------------------- | ------------------------------ | ---------------------- | ----------------------------------- |
+| Deal created, 0 contacts, no amount | **No Contacts**, **No Amount** | —                      | No contacts or amount yet           |
+| CMO contact added                   | —                              | **No Contacts**        | 1 contact now associated            |
+| Amount set to $150K                 | —                              | **No Amount**          | Deal amount populated               |
+| Deal in IPM for 14+ days            | **IPM Stale** applied          | —                      | IPM stage exceeded 14-day threshold |
+| Deal advances to Qualification      | —                              | **IPM Stale**          | No longer in IPM                    |
+| 21 days pass, no activity           | **No Recent Activity** applied | —                      | No logged activity for 21+ days     |
+| AE calls CMO (activity logged)      | —                              | **No Recent Activity** | Recent activity logged              |
+| Deal moves to Closed/Won            | All tags removed               | (all)                  | Lifecycle complete                  |
 
 ---
 
@@ -473,18 +347,18 @@ The workflow uses **11 branches + default** in priority order. First matching br
 
 **Hygiene Dashboard Query (HubSpot Reports):**
 
-- Filter: All open deals with tag = `stale_lead`
-- Insight: Which deals are at risk? (>21 days inactive)
-- Action: AE outreach or archive
+- Filter: All open deals by hygiene tag (No Recent Activity, Stalled, Zombie, etc.)
+- Insight: Which deals need attention?
+- Action: AE outreach, update, or archive
 
 **Sample Report Output:**
 
 ```
-Tag: stale_lead
+Tag: No Recent Activity
 Count: 12 deals
 Total pipeline value: $450k
-Last activity: 25-45 days ago
-AE action needed: Check-in call or archival
+Last activity: 21-44 days ago
+AE action needed: Check-in call or update next steps
 ```
 
 ---
@@ -505,13 +379,7 @@ AE action needed: Check-in call or archival
 - **Solution:** Add job title to appropriate branch (requires HubSpot admin) or manually set
 - **Prevention:** Standardize job titles on import; run QA on samples
 
-**Issue 3: SPICED gates blocking valid progression**
-
-- **Root Cause:** Required field empty (e.g., `budget_confirmed` not set even though AE discussed budget)
-- **Solution:** AE explicitly sets field value; workflow re-evaluates and advances
-- **Prevention:** Train AEs on field names and gate requirements; use pre-deal-creation checklist
-
-**Issue 4: Enrichment tracking not triggering**
+**Issue 3: Enrichment tracking not triggering**
 
 - **Root Cause:** `apollo_account_id` not populated (Apollo integration not working)
 - **Solution:** Check Apollo > HubSpot sync status; verify field mapping in Apollo admin
@@ -564,14 +432,52 @@ AE action needed: Check-in call or archival
 - [ ] Seniority workflow: 11 branches configured, tested on 100 titles
 - [ ] Enrichment tracking (company): Trigger on `apollo_account_id`, set metadata fields
 - [ ] Enrichment tracking (contact): Trigger on `apollo_account_id`, set metadata fields
-- [ ] SPICED Gate 1: IPM > Qualification (Situation, Pain, 1 role required)
-- [ ] SPICED Gate 2: Qualification > Consensus (Full SPICED, 2 roles, champion, budget required)
-- [ ] SPICED Gate 3: Consensus > Proposal (EB engaged, decision criteria, 3 roles, no blockers required)
-- [ ] Hygiene tags (9 total): Auto-apply/remove rules configured
+- [ ] Hygiene tags (10 total): Auto-apply/remove rules configured
 - [ ] QA audit: Sample 100 records across all workflows; document accuracy
-- [ ] Slack notifications: Gate failures and milestone advances (optional)
+- [ ] Slack notifications: Milestone advances (optional)
 - [ ] Documentation: Posted in HubSpot resources and Knotch docs site
 
 ---
 
-**Questions?** Reach out to Ops. Last updated: March 2026.
+---
+
+## Lead Status Automation (Planned)
+
+**Type:** Contact-based (6 workflows)
+**Status:** Pending build (backfill complete — all contacts have lead status populated)
+**Full spec:** Documentation/Workflows/Lead-Status-Automation-Plan.md
+
+These workflows enforce lead status hierarchy (statuses only move up: Cold → Attempted → Connected → Meeting Booked → Open Opportunity). Each workflow fires on a CRM event and sets the appropriate status if the contact's current status is lower in the hierarchy.
+
+| Workflow | Trigger              | Sets Status To   | Notes                                       |
+| -------- | -------------------- | ---------------- | ------------------------------------------- |
+| WF-LS1   | Deal created         | Open Opportunity | Highest progression status                  |
+| WF-LS2   | Deal closed won      | Connected        | Maintains relationship status post-close    |
+| WF-LS3   | Deal closed lost     | Bad Fit          | Conditional — only if no other active deals |
+| WF-LS4   | Meeting created      | Meeting Booked   |                                             |
+| WF-LS5   | Sequence enrollment  | Attempted        | Outreach initiated via sequence             |
+| WF-LS6   | Email reply received | Connected        | Two-way conversation established            |
+
+---
+
+## Event RSVP Processor Workflow
+
+**Type:** Contact-based
+**Workflow:** `WF | Event | RSVP Processor` (ID 1819563370)
+**Trigger:** RSVP form submission (any form matching `RSVP | {Event Name}`)
+**Actions:** Add to `RSVP | Unprocessed` static list (ID 1775), send Slack notification, route through IF/THEN for event-specific actions (confirmation emails, follow-up tasks)
+**Re-enrollment:** Yes (same contact can RSVP to multiple events)
+
+This workflow is the real-time intake for all event RSVPs. The Google Sheet Event Processor handles downstream processing (enrichment, Event Attendance records, list creation). For the full six-step event lifecycle, see Documentation/Events/Event-Lifecycle.md. For the workflow build guide, see Documentation/Events/RSVP-Processor-Workflow-Setup.md.
+
+---
+
+## Related Documents
+
+- **CRM Architecture and Standards** (02) — Object model and properties that workflows act on
+- **Pipeline Hygiene and Scoring** (04) — Hygiene tags that workflow enforcement supports
+- **Event and Webinar List Management** (14) — RSVP Processor Workflow context and event lists
+
+---
+
+**Questions?** Reach out to Ops.

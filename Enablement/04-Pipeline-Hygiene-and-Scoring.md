@@ -1,5 +1,9 @@
 # Pipeline Hygiene and Scoring
 
+**Audience:** Sellers, Sales Managers, RevOps | **Topics:** hygiene tags, pipeline scoring, deal health, dashboard, stale, zombie | **Last Updated:** May 2026
+
+---
+
 ## Overview
 
 Pipeline hygiene is the foundation of accurate forecasting, effective deal management, and accountability across the sales organization. Knotch uses a structured hygiene framework within HubSpot to surface pipeline risk in real time, flag unhealthy deals, and drive consistent stage progression and deal health standards.
@@ -8,7 +12,7 @@ The **Deal Pipeline Hygiene Dashboard** (HubSpot Dashboard ID: 19333613) provide
 
 ---
 
-## Eight Hygiene Tags
+## Ten Hygiene Tags
 
 Hygiene tags are automated signals that flag deals falling below defined health standards. Each tag has a clear definition, business impact, and resolution path.
 
@@ -353,3 +357,11 @@ Reach out to your manager or the RevOps team with questions on:
 - Dashboard access or filter issues
 - Pipeline Score methodology or a specific deal's score
 - Pipeline Scrub timing or cadence
+
+---
+
+## Related Documents
+
+- **Deal Process and SPICED** (03) — Pipeline stages and exit criteria that hygiene tags monitor
+- **Reporting and Dashboards** (10) — Dashboard access, report cadences, leadership metrics
+- **Seller Quick Reference** (12) — Hygiene tag summary and weekly scrub checklist
