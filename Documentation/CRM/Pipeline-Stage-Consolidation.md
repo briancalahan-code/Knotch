@@ -216,7 +216,7 @@ Both fields are overridable if the auto-populated value is wrong.
 - [x] Create "First Meeting Date" deal property (date type, auto-populated from meetings)
 - [x] Delete `ipm_scheduled` (IPM Set On) property — deleted 2026-05-27, backup at `Archive/ipm_scheduled_backup_2026-05-27.csv`
 - [ ] Create "Qualification Date" deal property (date type, auto-populated on stage exit)
-- [ ] Update SPICED gate workflows to reflect single IPM stage
+- [ ] Update deal hygiene workflows to reflect single IPM stage
 - [ ] Update deal hygiene tags/dashboard for new stage structure
 - [ ] Update IPM credit tracking to reflect Account IPM vs. Deal IPM logic
 - [ ] Build workflow: flag deals in IPM for 7+ days after first meeting date
