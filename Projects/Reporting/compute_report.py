@@ -136,6 +136,11 @@ class HubSpotClient:
                 time.sleep(retry_after)
                 continue
 
+            if resp.status_code >= 400:
+                print(
+                    f"  ERROR {resp.status_code} on {url}: {resp.text[:300]}",
+                    file=sys.stderr,
+                )
             resp.raise_for_status()
             data = resp.json()
             results = data.get("results", [])
@@ -321,7 +326,7 @@ def compute_bookings(client, config):
             {
                 "propertyName": "dealstage",
                 "operator": "IN",
-                "value": ";".join(OPEN_STAGES),
+                "values": OPEN_STAGES,
             },
             {
                 "propertyName": "closedate",
@@ -488,12 +493,12 @@ def compute_activity(client, config):
             {
                 "propertyName": "ipm_held",
                 "operator": "GTE",
-                "value": config["quarter_start"],
+                "value": q_start_ms,
             },
             {
                 "propertyName": "ipm_held",
                 "operator": "LTE",
-                "value": config["quarter_end"],
+                "value": q_end_ms,
             },
         ],
         properties=[
@@ -604,22 +609,26 @@ def compute_activity(client, config):
         meetings_by_seller[seller] = meetings_by_seller.get(seller, 0) + 1
 
     # Q11: Event Attendance (custom object, current quarter)
-    event_results = client.search_objects(
-        "2-62279031",
-        filters=[
-            {
-                "propertyName": "event_date",
-                "operator": "GTE",
-                "value": config["quarter_start"],
-            },
-            {
-                "propertyName": "event_date",
-                "operator": "LTE",
-                "value": config["quarter_end"],
-            },
-        ],
-        properties=["event_name", "event_date", "event_status", "event_type"],
-    )
+    try:
+        event_results = client.search_objects(
+            "2-62279031",
+            filters=[
+                {
+                    "propertyName": "event_date",
+                    "operator": "GTE",
+                    "value": q_start_ms,
+                },
+                {
+                    "propertyName": "event_date",
+                    "operator": "LTE",
+                    "value": q_end_ms,
+                },
+            ],
+            properties=["event_name", "event_date", "event_status", "event_type"],
+        )
+    except Exception as e:
+        print(f"  Event Attendance query failed (non-fatal): {e}", file=sys.stderr)
+        event_results = []
 
     return {
         "ipms": {
@@ -659,7 +668,7 @@ def compute_pipeline(client, config):
             {
                 "propertyName": "dealstage",
                 "operator": "IN",
-                "value": ";".join(LATE_STAGES),
+                "values": LATE_STAGES,
             },
             {
                 "propertyName": "closedate",
@@ -718,7 +727,7 @@ def compute_pipeline(client, config):
                 {
                     "propertyName": "dealstage",
                     "operator": "IN",
-                    "value": ";".join(LATE_STAGES),
+                    "values": LATE_STAGES,
                 },
                 {
                     "propertyName": "closedate",
@@ -767,7 +776,7 @@ def compute_pipeline(client, config):
                 {
                     "propertyName": "dealstage",
                     "operator": "IN",
-                    "value": ";".join(QUAL_PLUS),
+                    "values": QUAL_PLUS,
                 },
                 {
                     "propertyName": "closedate",
@@ -833,7 +842,7 @@ def compute_data_quality(client, config):
             {
                 "propertyName": "dealstage",
                 "operator": "IN",
-                "value": ";".join(LATE_STAGES),
+                "values": LATE_STAGES,
             },
             {
                 "propertyName": "closedate",
@@ -880,7 +889,7 @@ def compute_data_quality(client, config):
             {
                 "propertyName": "dealstage",
                 "operator": "IN",
-                "value": ";".join(QUAL_PLUS),
+                "values": QUAL_PLUS,
             },
         ],
         properties=[
@@ -1027,7 +1036,7 @@ def compute_market_feedback(client, config):
             {
                 "propertyName": "dealstage",
                 "operator": "IN",
-                "value": ";".join(QUAL_PLUS),
+                "values": QUAL_PLUS,
             },
         ],
         properties=["dealname", "dealtype", "platform_amt"],
@@ -1134,12 +1143,12 @@ def compute_seller_performance(client, config):
             {
                 "propertyName": "ipm_held",
                 "operator": "GTE",
-                "value": config["quarter_start"],
+                "value": q_start_ms,
             },
             {
                 "propertyName": "ipm_held",
                 "operator": "LTE",
-                "value": config["quarter_end"],
+                "value": q_end_ms,
             },
         ],
         properties=["hubspot_owner_id"],
@@ -1152,7 +1161,7 @@ def compute_seller_performance(client, config):
             {
                 "propertyName": "dealstage",
                 "operator": "IN",
-                "value": ";".join(QUAL_PLUS),
+                "values": QUAL_PLUS,
             },
         ],
         properties=["platform_amt", "hubspot_owner_id", "hs_tag_ids"],
