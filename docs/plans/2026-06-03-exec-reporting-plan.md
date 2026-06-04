@@ -1498,9 +1498,14 @@ git commit -m "Update docs with monthly/quarterly exec reporting cadence and sys
 
 <!-- Auto-updated during execution. Read this first if resuming after compaction. -->
 
-**Last completed:** {not started}
-**Next:** Wave 1, Task 1
+**Last completed:** Task 8 (all tasks complete)
+**Next:** None — execution complete
 **Branch:** main
-**Test baseline:** N/A — greenfield, no test suite
-**Key decisions:** {none yet}
-**Blockers:** {none}
+**Test baseline:** Live data verified for Q2 monthly and Q1 quarterly
+**Key decisions:**
+
+- HubSpot IN operator uses `values` array, not semicolon-delimited `value` string
+- Custom date properties (ipm_held, event_date) require epoch ms, not ISO date strings
+- Event Attendance query wrapped in try/except (supplementary, non-fatal on failure)
+- Q1 benchmark drift: live data shows $1,306,082 vs PDF's $1,102,500 — deals modified post-quarter (data timing, not script bug)
+  **Blockers:** None
