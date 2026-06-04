@@ -286,10 +286,11 @@ def compute_bookings(client, config):
         properties=[
             "dealname",
             "dealtype",
+            "amount",
             "platform_amt",
             "closedate",
             "hubspot_owner_id",
-            "manager_forecast",
+            "manager_forecast__stage_",
             "manager_forecast_amount",
             "hs_manual_forecast_category",
         ],
@@ -313,10 +314,10 @@ def compute_bookings(client, config):
                     "value": config["prior_q_end"],
                 },
             ],
-            properties=["platform_amt"],
+            properties=["amount"],
         )
         yoy_total = sum(
-            parse_dollars(d["properties"].get("platform_amt")) for d in prior_deals
+            parse_dollars(d["properties"].get("amount")) for d in prior_deals
         )
 
     # Q03: Open deals with manager forecast (current Q close dates)
@@ -342,10 +343,11 @@ def compute_bookings(client, config):
         properties=[
             "dealname",
             "dealtype",
+            "amount",
             "platform_amt",
             "closedate",
             "hubspot_owner_id",
-            "manager_forecast",
+            "manager_forecast__stage_",
             "manager_forecast_amount",
             "hs_manual_forecast_category",
             "dealstage",
@@ -354,7 +356,7 @@ def compute_bookings(client, config):
 
     # Closed-won aggregations
     closed_won_total = sum(
-        parse_dollars(d["properties"].get("platform_amt")) for d in won_deals
+        parse_dollars(d["properties"].get("amount")) for d in won_deals
     )
     goal = config["targets"].get("bookings", 0)
     pct_to_goal = round(closed_won_total / goal * 100, 1) if goal else 0
@@ -364,11 +366,12 @@ def compute_bookings(client, config):
     deal_list = []
     for d in won_deals:
         p = d["properties"]
-        amt = parse_dollars(p.get("platform_amt"))
+        acv = parse_dollars(p.get("amount"))
+        platform = parse_dollars(p.get("platform_amt"))
         seller = owner_name(p.get("hubspot_owner_id"))
         dtype = classify_deal_type(p.get("dealtype", ""))
-        by_seller[seller] = by_seller.get(seller, 0) + amt
-        by_type[dtype] = by_type.get(dtype, 0) + amt
+        by_seller[seller] = by_seller.get(seller, 0) + acv
+        by_type[dtype] = by_type.get(dtype, 0) + acv
         deal_list.append(
             {
                 "id": d["id"],
@@ -377,7 +380,9 @@ def compute_bookings(client, config):
                 "type": dtype,
                 "ace_k1": classify_ace_k1(p.get("dealname", "")),
                 "close_date": p.get("closedate", ""),
-                "arr": amt,
+                "acv": acv,
+                "platform": platform,
+                "services": acv - platform if platform else 0,
             }
         )
 
@@ -398,7 +403,7 @@ def compute_bookings(client, config):
 
     for d in forecast_deals:
         p = d["properties"]
-        deal_amt = parse_dollars(p.get("platform_amt"))
+        deal_amt = parse_dollars(p.get("amount"))
         mfa = (
             parse_dollars(p.get("manager_forecast_amount"))
             if p.get("manager_forecast_amount")
@@ -407,14 +412,14 @@ def compute_bookings(client, config):
         deal_info = {
             "name": p.get("dealname", ""),
             "ae": owner_name(p.get("hubspot_owner_id")),
-            "arr": deal_amt,
+            "acv": deal_amt,
             "stage": STAGES.get(p.get("dealstage", ""), ""),
             "close_date": p.get("closedate", ""),
-            "forecast_cat": p.get("manager_forecast", ""),
+            "forecast_cat": p.get("manager_forecast__stage_", ""),
         }
 
         # Manager forecast
-        cat = (p.get("manager_forecast") or "").lower().strip()
+        cat = (p.get("manager_forecast__stage_") or "").lower().strip()
         if cat == "commit":
             forecast["commit"]["count"] += 1
             forecast["commit"]["total"] += mfa
@@ -476,7 +481,7 @@ def compute_bookings(client, config):
         "yoy_pct_change": yoy_pct,
         "by_seller": by_seller,
         "by_type": by_type,
-        "deals": sorted(deal_list, key=lambda d: d["arr"], reverse=True),
+        "deals": sorted(deal_list, key=lambda d: d["acv"], reverse=True),
         "forecast": forecast,
         "ic_forecast": ic_forecast,
     }
@@ -504,6 +509,7 @@ def compute_activity(client, config):
         properties=[
             "dealname",
             "dealtype",
+            "amount",
             "platform_amt",
             "ipm_held",
             "hubspot_owner_id",
@@ -523,7 +529,7 @@ def compute_activity(client, config):
                 "name": p.get("dealname", ""),
                 "ae": seller,
                 "type": classify_deal_type(p.get("dealtype", "")),
-                "arr": parse_dollars(p.get("platform_amt")),
+                "acv": parse_dollars(p.get("amount")),
                 "ipm_held": p.get("ipm_held", ""),
             }
         )
@@ -546,6 +552,7 @@ def compute_activity(client, config):
         properties=[
             "dealname",
             "dealtype",
+            "amount",
             "platform_amt",
             "hs_v2_date_entered_152455272",
             "hubspot_owner_id",
@@ -559,7 +566,7 @@ def compute_activity(client, config):
     pipe_deal_list = []
     for d in pipe_deals:
         p = d["properties"]
-        amt = parse_dollars(p.get("platform_amt"))
+        amt = parse_dollars(p.get("amount"))
         seller = owner_name(p.get("hubspot_owner_id"))
         ace_k1 = classify_ace_k1(p.get("dealname", ""))
         pipe_total += amt
@@ -573,7 +580,7 @@ def compute_activity(client, config):
                 "type": classify_deal_type(p.get("dealtype", "")),
                 "ace_k1": ace_k1,
                 "created_date": p.get("hs_v2_date_entered_152455272", ""),
-                "arr": amt,
+                "acv": amt,
                 "stage": STAGES.get(p.get("dealstage", ""), ""),
             }
         )
@@ -644,7 +651,7 @@ def compute_activity(client, config):
             "count": len(pipe_deals),
             "by_seller": pipe_by_seller,
             "by_type": pipe_by_type,
-            "deals": sorted(pipe_deal_list, key=lambda d: d["arr"], reverse=True),
+            "deals": sorted(pipe_deal_list, key=lambda d: d["acv"], reverse=True),
         },
         "emails": {
             "total": len(email_results),
@@ -684,10 +691,11 @@ def compute_pipeline(client, config):
         properties=[
             "dealname",
             "dealtype",
+            "amount",
             "platform_amt",
             "closedate",
             "hubspot_owner_id",
-            "manager_forecast",
+            "manager_forecast__stage_",
             "manager_forecast_amount",
             "hs_manual_forecast_category",
             "dealstage",
@@ -695,7 +703,7 @@ def compute_pipeline(client, config):
     )
 
     late_total = sum(
-        parse_dollars(d["properties"].get("platform_amt")) for d in late_stage_deals
+        parse_dollars(d["properties"].get("amount")) for d in late_stage_deals
     )
     late_deal_list = []
     for d in late_stage_deals:
@@ -709,8 +717,8 @@ def compute_pipeline(client, config):
                 "ace_k1": classify_ace_k1(p.get("dealname", "")),
                 "stage": STAGES.get(p.get("dealstage", ""), ""),
                 "close_date": p.get("closedate", ""),
-                "arr": parse_dollars(p.get("platform_amt")),
-                "manager_forecast": p.get("manager_forecast", ""),
+                "acv": parse_dollars(p.get("amount")),
+                "manager_forecast__stage_": p.get("manager_forecast__stage_", ""),
             }
         )
 
@@ -743,15 +751,15 @@ def compute_pipeline(client, config):
             properties=[
                 "dealname",
                 "dealtype",
-                "platform_amt",
+                "amount",
                 "closedate",
                 "hubspot_owner_id",
-                "manager_forecast",
+                "manager_forecast__stage_",
                 "dealstage",
             ],
         )
         next_q_late_total = sum(
-            parse_dollars(d["properties"].get("platform_amt")) for d in next_late_deals
+            parse_dollars(d["properties"].get("amount")) for d in next_late_deals
         )
         for d in next_late_deals:
             p = d["properties"]
@@ -762,7 +770,7 @@ def compute_pipeline(client, config):
                     "ae": owner_name(p.get("hubspot_owner_id")),
                     "stage": STAGES.get(p.get("dealstage", ""), ""),
                     "close_date": p.get("closedate", ""),
-                    "arr": parse_dollars(p.get("platform_amt")),
+                    "acv": parse_dollars(p.get("amount")),
                 }
             )
 
@@ -792,14 +800,14 @@ def compute_pipeline(client, config):
             properties=[
                 "dealname",
                 "dealtype",
-                "platform_amt",
+                "amount",
                 "closedate",
                 "hubspot_owner_id",
                 "dealstage",
             ],
         )
         next_q_early_total = sum(
-            parse_dollars(d["properties"].get("platform_amt")) for d in early_deals
+            parse_dollars(d["properties"].get("amount")) for d in early_deals
         )
         for d in early_deals:
             p = d["properties"]
@@ -810,7 +818,7 @@ def compute_pipeline(client, config):
                     "ae": owner_name(p.get("hubspot_owner_id")),
                     "stage": STAGES.get(p.get("dealstage", ""), ""),
                     "close_date": p.get("closedate", ""),
-                    "arr": parse_dollars(p.get("platform_amt")),
+                    "acv": parse_dollars(p.get("amount")),
                 }
             )
 
@@ -818,7 +826,7 @@ def compute_pipeline(client, config):
         "late_stage_current_q": {
             "total": late_total,
             "count": len(late_stage_deals),
-            "deals": sorted(late_deal_list, key=lambda d: d["arr"], reverse=True),
+            "deals": sorted(late_deal_list, key=lambda d: d["acv"], reverse=True),
         },
         "coverage_ratio": coverage,
         "next_q": {
@@ -827,7 +835,7 @@ def compute_pipeline(client, config):
             "early_total": next_q_early_total,
             "deals": sorted(
                 next_q_late + next_q_early_deals,
-                key=lambda d: d["arr"],
+                key=lambda d: d["acv"],
                 reverse=True,
             ),
         },
@@ -857,10 +865,11 @@ def compute_data_quality(client, config):
         ],
         properties=[
             "dealname",
+            "amount",
             "platform_amt",
             "hubspot_owner_id",
             "dealstage",
-            "manager_forecast",
+            "manager_forecast__stage_",
             "closedate",
         ],
     )
@@ -868,13 +877,13 @@ def compute_data_quality(client, config):
     forecast_missing = []
     for d in late_deals:
         p = d["properties"]
-        if not (p.get("manager_forecast") or "").strip():
+        if not (p.get("manager_forecast__stage_") or "").strip():
             forecast_missing.append(
                 {
                     "name": p.get("dealname", ""),
                     "ae": owner_name(p.get("hubspot_owner_id")),
                     "stage": STAGES.get(p.get("dealstage", ""), ""),
-                    "arr": parse_dollars(p.get("platform_amt")),
+                    "acv": parse_dollars(p.get("amount")),
                 }
             )
 
@@ -894,6 +903,7 @@ def compute_data_quality(client, config):
         ],
         properties=[
             "dealname",
+            "amount",
             "platform_amt",
             "hubspot_owner_id",
             "dealstage",
@@ -922,7 +932,7 @@ def compute_data_quality(client, config):
                     "ae": owner_name(p.get("hubspot_owner_id")),
                     "close_date": cd,
                     "stage": STAGES.get(p.get("dealstage", ""), ""),
-                    "arr": parse_dollars(p.get("platform_amt")),
+                    "acv": parse_dollars(p.get("amount")),
                 }
             )
 
@@ -959,6 +969,7 @@ def compute_market_feedback(client, config):
         properties=[
             "dealname",
             "dealtype",
+            "amount",
             "platform_amt",
             "closedate",
             "hubspot_owner_id",
@@ -971,7 +982,7 @@ def compute_market_feedback(client, config):
     lost_deal_list = []
     for d in lost_deals:
         p = d["properties"]
-        amt = parse_dollars(p.get("platform_amt"))
+        amt = parse_dollars(p.get("amount"))
         reason = p.get("closed_lost_reason", "") or "Not specified"
         lost_total += amt
         if reason not in lost_by_reason:
@@ -986,7 +997,7 @@ def compute_market_feedback(client, config):
                 "type": classify_deal_type(p.get("dealtype", "")),
                 "ace_k1": classify_ace_k1(p.get("dealname", "")),
                 "close_date": p.get("closedate", ""),
-                "arr": amt,
+                "acv": amt,
                 "reason": reason,
             }
         )
@@ -1008,7 +1019,7 @@ def compute_market_feedback(client, config):
                 "value": config["quarter_end"],
             },
         ],
-        properties=["dealname", "dealtype", "platform_amt"],
+        properties=["dealname", "dealtype", "amount"],
     )
 
     q_start_ms = date_to_epoch_ms(config["quarter_start"])
@@ -1027,7 +1038,7 @@ def compute_market_feedback(client, config):
                 "value": q_end_ms,
             },
         ],
-        properties=["dealname", "dealtype", "platform_amt"],
+        properties=["dealname", "dealtype", "amount"],
     )
 
     open_qual_deals = client.search_deals(
@@ -1039,7 +1050,7 @@ def compute_market_feedback(client, config):
                 "values": QUAL_PLUS,
             },
         ],
-        properties=["dealname", "dealtype", "platform_amt"],
+        properties=["dealname", "dealtype", "amount"],
     )
 
     def ace_k1_bucket(deals):
@@ -1047,7 +1058,7 @@ def compute_market_feedback(client, config):
         k1 = {"count": 0, "total": 0}
         for d in deals:
             p = d["properties"]
-            amt = parse_dollars(p.get("platform_amt"))
+            amt = parse_dollars(p.get("amount"))
             if classify_ace_k1(p.get("dealname", "")) == "ACE":
                 ace["count"] += 1
                 ace["total"] += amt
@@ -1060,7 +1071,7 @@ def compute_market_feedback(client, config):
         "closed_lost": {
             "total": lost_total,
             "count": len(lost_deals),
-            "deals": sorted(lost_deal_list, key=lambda d: d["arr"], reverse=True),
+            "deals": sorted(lost_deal_list, key=lambda d: d["acv"], reverse=True),
             "by_reason": lost_by_reason,
         },
         "ace_k1_mix": {
@@ -1092,7 +1103,7 @@ def compute_seller_performance(client, config):
                 "value": config["quarter_end"],
             },
         ],
-        properties=["platform_amt", "hubspot_owner_id"],
+        properties=["amount", "hubspot_owner_id"],
     )
 
     # Closed-Lost by seller (Qual+ only, for win rate)
@@ -1115,7 +1126,7 @@ def compute_seller_performance(client, config):
                 "operator": "HAS_PROPERTY",
             },
         ],
-        properties=["platform_amt", "hubspot_owner_id"],
+        properties=["amount", "hubspot_owner_id"],
     )
 
     # Pipeline created by seller
@@ -1133,7 +1144,7 @@ def compute_seller_performance(client, config):
                 "value": q_end_ms,
             },
         ],
-        properties=["platform_amt", "hubspot_owner_id"],
+        properties=["amount", "hubspot_owner_id"],
     )
 
     # IPMs by seller
@@ -1164,7 +1175,7 @@ def compute_seller_performance(client, config):
                 "values": QUAL_PLUS,
             },
         ],
-        properties=["platform_amt", "hubspot_owner_id", "hs_tag_ids"],
+        properties=["amount", "hubspot_owner_id", "hs_tag_ids"],
     )
 
     # Q14 + Q15: Emails and meetings in last month of quarter
@@ -1217,9 +1228,7 @@ def compute_seller_performance(client, config):
         oid = str(d["properties"].get("hubspot_owner_id", ""))
         name = OWNERS.get(oid)
         if name and name in sellers:
-            sellers[name]["bookings"] += parse_dollars(
-                d["properties"].get("platform_amt")
-            )
+            sellers[name]["bookings"] += parse_dollars(d["properties"].get("amount"))
             sellers[name]["bookings_count"] += 1
             sellers[name]["won_count"] += 1
 
@@ -1234,7 +1243,7 @@ def compute_seller_performance(client, config):
         name = OWNERS.get(oid)
         if name and name in sellers:
             sellers[name]["pipeline_created"] += parse_dollars(
-                d["properties"].get("platform_amt")
+                d["properties"].get("amount")
             )
             sellers[name]["pipeline_count"] += 1
 
@@ -1249,7 +1258,7 @@ def compute_seller_performance(client, config):
         name = OWNERS.get(oid)
         if name and name in sellers:
             sellers[name]["open_pipeline"] += parse_dollars(
-                d["properties"].get("platform_amt")
+                d["properties"].get("amount")
             )
             if (d["properties"].get("hs_tag_ids") or "").strip():
                 sellers[name]["hygiene_flags"] += 1

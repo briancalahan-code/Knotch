@@ -99,8 +99,8 @@ Dollar formatting for KPI cards: divide by 1,000,000, round to 2 decimal places,
 
 #### Closed-Won Detail Table
 
-| Deal | AE  | Type | Close Date | Platform ARR |
-| ---- | --- | ---- | ---------- | ------------ |
+| Deal | AE  | Type | Close Date | ACV |
+| ---- | --- | ---- | ---------- | --- |
 
 Populate from `bookings.deals[]`. Format ARR as $XXX,XXX. Sort by ARR descending (already sorted in JSON).
 
@@ -146,8 +146,8 @@ Populate from `activity.ipms.by_seller`.
 
 #### IPM Detail Table
 
-| Deal | AE  | Type | Platform Amt | IPM Held Date |
-| ---- | --- | ---- | ------------ | ------------- |
+| Deal | AE  | Type | ACV | IPM Held Date |
+| ---- | --- | ---- | --- | ------------- |
 
 Populate from `activity.ipms.deals[]`.
 
@@ -163,8 +163,8 @@ Populate from `activity.pipeline_created.by_seller`.
 
 #### Pipeline Created Detail
 
-| Deal | AE  | Type | Created Date | Platform Amt | Current Stage |
-| ---- | --- | ---- | ------------ | ------------ | ------------- |
+| Deal | AE  | Type | Created Date | ACV | Current Stage |
+| ---- | --- | ---- | ------------ | --- | ------------- |
 
 Populate from `activity.pipeline_created.deals[]`. Sort by ARR descending (already sorted).
 
@@ -189,8 +189,8 @@ Total late-stage (Proposal + Procurement): $`pipeline.late_stage_current_q.total
 
 Coverage ratio: `pipeline.coverage_ratio`x (late-stage $ / quarterly goal)
 
-| Deal | AE  | Type | Stage | Close Date | Platform ARR | Manager Forecast |
-| ---- | --- | ---- | ----- | ---------- | ------------ | ---------------- |
+| Deal | AE  | Type | Stage | Close Date | ACV | Manager Forecast |
+| ---- | --- | ---- | ----- | ---------- | --- | ---------------- |
 
 Populate from `pipeline.late_stage_current_q.deals[]`.
 
@@ -210,8 +210,8 @@ _Pete's commentary placeholder:_ [Space for Pete to add his narrative overlay on
 - Late-stage (Proposal+): $`pipeline.next_q.late_stage_total` (`pipeline.next_q.late_stage_count` deals)
 - Early pipeline (Qual+): $`pipeline.next_q.early_total`
 
-| Deal | AE  | Stage | Close Date | Platform ARR |
-| ---- | --- | ----- | ---------- | ------------ |
+| Deal | AE  | Stage | Close Date | ACV |
+| ---- | --- | ----- | ---------- | --- |
 
 Populate from `pipeline.next_q.deals[]`.
 
@@ -226,8 +226,8 @@ Populate from `pipeline.next_q.deals[]`.
 
 #### Closed-Lost Detail Table
 
-| Deal | AE  | Type | Close Date | Platform ARR | Loss Reason |
-| ---- | --- | ---- | ---------- | ------------ | ----------- |
+| Deal | AE  | Type | Close Date | ACV | Loss Reason |
+| ---- | --- | ---- | ---------- | --- | ----------- |
 
 Populate from `market_feedback.closed_lost.deals[]`. Sort by ARR descending (already sorted).
 
@@ -365,8 +365,8 @@ Check each condition and include if applicable:
 
 > Warning: Manager forecast is `{forecast_coverage_pct}`% populated for late-stage deals. The following deals are missing a forecast category:
 
-| Deal | AE  | Stage | Platform ARR |
-| ---- | --- | ----- | ------------ |
+| Deal | AE  | Stage | ACV |
+| ---- | --- | ----- | --- |
 
 Populate from `data_quality.forecast_missing_deals[]`.
 
@@ -380,8 +380,8 @@ List deal names and AEs.
 
 > Warning: `{count}` deals have close dates in the past but are still open:
 
-| Deal | AE  | Close Date | Stage | Platform ARR |
-| ---- | --- | ---------- | ----- | ------------ |
+| Deal | AE  | Close Date | Stage | ACV |
+| ---- | --- | ---------- | ----- | --- |
 
 ---
 

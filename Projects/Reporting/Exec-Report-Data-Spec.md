@@ -74,20 +74,20 @@ FY26 (for YoY comparison):
 
 ### Key Properties
 
-| Property                     | Label                      | Type        | Notes                                               |
-| ---------------------------- | -------------------------- | ----------- | --------------------------------------------------- |
-| platform_amt                 | Platform Amount            | number      | ALWAYS use this, NEVER `amount`                     |
-| manager_forecast             | Manager Forecast           | enumeration | Commit / Best Case / Pipeline / Omit                |
-| manager_forecast_amount      | Manager Forecast Amount    | number      | Auto-computed: category weight x deal amount        |
-| hs_manual_forecast_category  | Forecast category          | enumeration | IC/seller forecast (fallback if manager is empty)   |
-| manager*forecast\_\_stage*   | Manager Forecast (Stage)   | enumeration | Stage-level forecast                                |
-| ipm_held                     | IPM Held                   | date        | Date IPM was held                                   |
-| hs_v2_date_entered_152455272 | Date Entered Qualification | datetime    | Timestamp -- used for pipeline created and CL scope |
-| closedate                    | Close Date                 | date        | Date-only field                                     |
-| dealtype                     | Deal Type                  | enumeration | "New License" = New Biz, else Upsell                |
-| closed_lost_reason           | Closed Lost Reason         | enumeration | For Section 4 market feedback                       |
-| hs_tag_ids                   | Deal Tags                  | string      | Semicolon-delimited tag IDs (hygiene flags)         |
-| dealname                     | Deal Name                  | string      | Used for ACE/K1 classification                      |
+| Property                     | Label                      | Type        | Notes                                                    |
+| ---------------------------- | -------------------------- | ----------- | -------------------------------------------------------- |
+| amount                       | Amount (ACV)               | number      | PRIMARY dollar field -- auto-calculated from line items  |
+| platform_amt                 | Platform Amt               | number      | Secondary -- platform-only, excludes services/consulting |
+| manager*forecast\_\_stage*   | Manager Forecast (Stage)   | enumeration | Commit / Best Case / Pipeline / Omit                     |
+| manager_forecast_amount      | Manager Forecast Amount    | number      | Auto-computed: category weight x deal amount             |
+| hs_manual_forecast_category  | Forecast category          | enumeration | IC/seller forecast (fallback if manager is empty)        |
+| ipm_held                     | IPM Held                   | date        | Date IPM was held                                        |
+| hs_v2_date_entered_152455272 | Date Entered Qualification | datetime    | Timestamp -- used for pipeline created and CL scope      |
+| closedate                    | Close Date                 | date        | Date-only field                                          |
+| dealtype                     | Deal Type                  | enumeration | "New License" = New Biz, else Upsell                     |
+| closed_lost_reason           | Closed Lost Reason         | enumeration | For Section 4 market feedback                            |
+| hs_tag_ids                   | Deal Tags                  | string      | Semicolon-delimited tag IDs (hygiene flags)              |
+| dealname                     | Deal Name                  | string      | Used for ACE/K1 classification                           |
 
 ---
 
@@ -105,12 +105,12 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - dealstage EQ `138620988`
   - closedate GTE `{quarter_start}`
   - closedate LTE `{quarter_end}`
-- **Properties:** dealname, dealtype, platform_amt, closedate, hubspot_owner_id, manager_forecast, manager_forecast_amount, hs_manual_forecast_category
+- **Properties:** dealname, dealtype, amount, platform*amt, closedate, hubspot_owner_id, manager_forecast\_\_stage*, manager_forecast_amount, hs_manual_forecast_category
 - **Pagination:** No (expect <20 per quarter)
 - **Aggregations:**
-  - SUM(platform_amt) -> `bookings.closed_won_total`
-  - SUM(platform_amt) GROUP BY hubspot_owner_id -> `bookings.by_seller`
-  - SUM(platform_amt) GROUP BY dealtype -> `bookings.by_type`
+  - SUM(amount) -> `bookings.closed_won_total`
+  - SUM(amount) GROUP BY hubspot_owner_id -> `bookings.by_seller`
+  - SUM(amount) GROUP BY dealtype -> `bookings.by_type`
   - COUNT -> `bookings.closed_won_count`
 
 #### Q02: Closed-Won Deals (Same Quarter Last FY -- YoY)
@@ -121,10 +121,10 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - dealstage EQ `138620988`
   - closedate GTE `{prior_q_start}`
   - closedate LTE `{prior_q_end}`
-- **Properties:** platform_amt
+- **Properties:** amount
 - **Pagination:** No
 - **Aggregations:**
-  - SUM(platform_amt) -> `bookings.yoy_prior`
+  - SUM(amount) -> `bookings.yoy_prior`
 
 #### Q03: Open Deals with Forecast (Current Q Close Dates)
 
@@ -134,11 +134,11 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - dealstage IN `152446547;152455272;138620983;138620984;138620985` (all open stages)
   - closedate GTE `{quarter_start}`
   - closedate LTE `{quarter_end}`
-- **Properties:** dealname, dealtype, platform_amt, closedate, hubspot_owner_id, manager_forecast, manager_forecast_amount, hs_manual_forecast_category, dealstage
+- **Properties:** dealname, dealtype, amount, platform*amt, closedate, hubspot_owner_id, manager_forecast\_\_stage*, manager_forecast_amount, hs_manual_forecast_category, dealstage
 - **Pagination:** Yes (could be 50+)
 - **Aggregations:**
   - GROUP BY manager_forecast -> SUM(manager_forecast_amount) per category -> `bookings.forecast`
-  - GROUP BY hs_manual_forecast_category -> SUM(platform_amt) per category -> `bookings.ic_forecast`
+  - GROUP BY hs_manual_forecast_category -> SUM(amount) per category -> `bookings.ic_forecast`
 
 #### Q04: IPMs Held (Current Quarter)
 
@@ -147,7 +147,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - pipeline EQ `72018330`
   - ipm_held GTE `{quarter_start}`
   - ipm_held LTE `{quarter_end}`
-- **Properties:** dealname, dealtype, platform_amt, ipm_held, hubspot_owner_id, dealstage
+- **Properties:** dealname, dealtype, amount, platform_amt, ipm_held, hubspot_owner_id, dealstage
 - **Pagination:** No (expect <40)
 - **Aggregations:**
   - COUNT -> `activity.ipms.total`
@@ -160,11 +160,11 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - pipeline EQ `72018330`
   - hs_v2_date_entered_152455272 GTE `{quarter_start_ts}` (epoch ms)
   - hs_v2_date_entered_152455272 LTE `{quarter_end_ts}` (epoch ms)
-- **Properties:** dealname, dealtype, platform_amt, hs_v2_date_entered_152455272, hubspot_owner_id, dealstage
+- **Properties:** dealname, dealtype, amount, platform_amt, hs_v2_date_entered_152455272, hubspot_owner_id, dealstage
 - **Pagination:** Yes (could be 30+)
 - **Note:** `hs_v2_date_entered_*` is a timestamp field -- use epoch milliseconds, not date strings
 - **Aggregations:**
-  - SUM(platform_amt) -> `activity.pipeline_created.total`
+  - SUM(amount) -> `activity.pipeline_created.total`
   - COUNT -> `activity.pipeline_created.count`
   - SUM GROUP BY hubspot_owner_id -> `activity.pipeline_created.by_seller`
   - SUM GROUP BY ACE/K1 classification -> `activity.pipeline_created.by_type`
@@ -203,10 +203,10 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - dealstage IN `138620984;138620985` (Proposal + Procurement)
   - closedate GTE `{quarter_start}`
   - closedate LTE `{quarter_end}`
-- **Properties:** dealname, dealtype, platform_amt, closedate, hubspot_owner_id, manager_forecast, manager_forecast_amount, hs_manual_forecast_category, dealstage
+- **Properties:** dealname, dealtype, amount, platform*amt, closedate, hubspot_owner_id, manager_forecast\_\_stage*, manager_forecast_amount, hs_manual_forecast_category, dealstage
 - **Pagination:** No (expect <15)
 - **Aggregations:**
-  - SUM(platform_amt) -> `pipeline.late_stage_current_q.total`
+  - SUM(amount) -> `pipeline.late_stage_current_q.total`
   - COUNT -> `pipeline.late_stage_current_q.count`
 
 #### Q09: Late-Stage Deals -- Next Q Close Dates (Proposal+)
@@ -217,10 +217,10 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - dealstage IN `138620984;138620985`
   - closedate GTE `{next_q_start}`
   - closedate LTE `{next_q_end}`
-- **Properties:** dealname, dealtype, platform_amt, closedate, hubspot_owner_id, manager_forecast, dealstage
+- **Properties:** dealname, dealtype, amount, closedate, hubspot*owner_id, manager_forecast\_\_stage*, dealstage
 - **Pagination:** No
 - **Aggregations:**
-  - SUM(platform_amt) -> `pipeline.next_q.late_stage_total`
+  - SUM(amount) -> `pipeline.next_q.late_stage_total`
   - COUNT -> `pipeline.next_q.late_stage_count`
 
 #### Q10: Early Pipeline -- Next Q Close Dates (Qualification+)
@@ -231,10 +231,10 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - dealstage IN `152455272;138620983;138620984;138620985` (Qual+)
   - closedate GTE `{next_q_start}`
   - closedate LTE `{next_q_end}`
-- **Properties:** dealname, dealtype, platform_amt, closedate, hubspot_owner_id, dealstage
+- **Properties:** dealname, dealtype, amount, closedate, hubspot_owner_id, dealstage
 - **Pagination:** Yes
 - **Aggregations:**
-  - SUM(platform_amt) -> `pipeline.next_q.early_total`
+  - SUM(amount) -> `pipeline.next_q.early_total`
 
 #### Q11: Event Attendance (Current Quarter)
 
@@ -258,10 +258,10 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - closedate GTE `{quarter_start}`
   - closedate LTE `{quarter_end}`
   - hs_v2_date_entered_152455272 HAS_PROPERTY (reached Qualification -- excludes IPM-only losses)
-- **Properties:** dealname, dealtype, platform_amt, closedate, hubspot_owner_id, closed_lost_reason
+- **Properties:** dealname, dealtype, amount, platform_amt, closedate, hubspot_owner_id, closed_lost_reason
 - **Pagination:** No (expect <30)
 - **Aggregations:**
-  - SUM(platform_amt) -> `market_feedback.closed_lost.total`
+  - SUM(amount) -> `market_feedback.closed_lost.total`
   - COUNT -> `market_feedback.closed_lost.count`
   - GROUP BY closed_lost_reason -> count + sum per reason -> `market_feedback.closed_lost.by_reason`
 
@@ -271,10 +271,10 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - pipeline EQ `72018330`
   - dealstage IN `152455272;138620983;138620984;138620985` (Qual+)
-- **Properties:** dealname, dealtype, platform_amt, closedate, hubspot_owner_id, dealstage, hs_tag_ids
+- **Properties:** dealname, dealtype, amount, closedate, hubspot_owner_id, dealstage, hs_tag_ids
 - **Pagination:** Yes (~170 records)
 - **Aggregations:**
-  - SUM(platform_amt) GROUP BY hubspot_owner_id -> `seller_performance.{seller}.open_pipeline`
+  - SUM(amount) GROUP BY hubspot_owner_id -> `seller_performance.{seller}.open_pipeline`
   - COUNT deals with non-empty hs_tag_ids GROUP BY owner -> `seller_performance.{seller}.hygiene_flags`
 
 #### Q14: Sales Emails by Seller (Last Month of Quarter)
@@ -321,7 +321,8 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 
 ### Dollar Handling
 
-- Source field: `platform_amt` (NEVER `amount`)
+- Primary source field: `amount` (ACV -- auto-calculated from line items)
+- Secondary: `platform_amt` for platform vs. services breakdown
 - Null/empty -> treat as 0
 - Round to nearest dollar (no cents) for all computations
 - Display in tables: `$1,234,567`
@@ -352,8 +353,8 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 
 - Expected values: Commit, Best Case, Pipeline, Omit
 - If empty/null: exclude from forecast rollup, flag in data quality section
-- Dollar source: use `manager_forecast_amount` when available; fall back to `platform_amt`
-- Fallback: if `manager_forecast` empty, use `hs_manual_forecast_category` for IC forecast comparison
+- Dollar source: use `manager_forecast_amount` when available; fall back to `amount`
+- Fallback: if `manager_forecast__stage_` empty, use `hs_manual_forecast_category` for IC forecast comparison
 
 ### Win Rate
 
@@ -415,7 +416,7 @@ The exact JSON structure `compute_report.py` outputs. Every key path referenced 
     "forecast_coverage_pct": 85.0,
     "forecast_warning": false,
     "forecast_missing_deals": [
-      { "name": "...", "ae": "...", "stage": "...", "arr": 0 }
+      { "name": "...", "ae": "...", "stage": "...", "acv": 0 }
     ],
     "null_platform_amt_deals": [{ "name": "...", "ae": "...", "stage": "..." }],
     "past_due_open_deals": [
@@ -424,7 +425,7 @@ The exact JSON structure `compute_report.py` outputs. Every key path referenced 
         "ae": "...",
         "close_date": "...",
         "stage": "...",
-        "arr": 0
+        "acv": 0
       }
     ]
   },
@@ -444,7 +445,9 @@ The exact JSON structure `compute_report.py` outputs. Every key path referenced 
         "ae": "...",
         "type": "K1",
         "close_date": "2026-03-15",
-        "arr": 295000
+        "acv": 295000,
+        "platform": 295000,
+        "services": 0
       }
     ],
     "forecast": {
