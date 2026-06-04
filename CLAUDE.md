@@ -87,6 +87,22 @@ Automated daily email verification via Clay + Icypeas:
 - HubSpot workflow "Copy Email Verification Result to Status" (ID 1796834461) is OFF (redundant -- Clay writes dropdown directly)
 - Apollo deliverability suite is monitoring only (0 sends), not a separate verification system
 
+## Active Project: Executive Reporting System
+
+**Status:** Live
+**Files:** Projects/Reporting/
+
+- `Exec-Report-Data-Spec.md` -- Shared data contract (queries, computations, rounding rules)
+- `compute_report.py` -- HubSpot API -> deterministic JSON (python3, standalone)
+- `Monthly-Exec-Report-Prompt.md` -- Claude prompt for monthly report (sections 1-3)
+- `Quarterly-Exec-Report-Prompt.md` -- Claude prompt for quarterly report (sections 1-6)
+
+**Cadence:** Monthly (sections 1-3: Bookings, Activity, Pipeline), Quarterly (adds Market Feedback, Seller Performance, Initiatives)
+
+**QA:** Run `compute_report.py` independently to verify numbers. `--dry-run` shows API calls without executing. Q1 benchmark: $1,102,500 bookings (from Q1 PDF, but live data may drift as deals are modified post-quarter).
+
+**Requires:** `HUBSPOT_API_KEY` env var, python3 with `requests` and `openpyxl` packages, shell access in Claude (CLI or desktop).
+
 ## Directory Structure
 
 ```
