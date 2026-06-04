@@ -927,15 +927,393 @@ def compute_data_quality(client, config):
 
 
 def compute_market_feedback(client, config):
-    return {}
+    # Q12: Closed-Lost deals (current Q, Qualification+ only)
+    lost_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {"propertyName": "dealstage", "operator": "EQ", "value": "138669962"},
+            {
+                "propertyName": "closedate",
+                "operator": "GTE",
+                "value": config["quarter_start"],
+            },
+            {
+                "propertyName": "closedate",
+                "operator": "LTE",
+                "value": config["quarter_end"],
+            },
+            {
+                "propertyName": "hs_v2_date_entered_152455272",
+                "operator": "HAS_PROPERTY",
+            },
+        ],
+        properties=[
+            "dealname",
+            "dealtype",
+            "platform_amt",
+            "closedate",
+            "hubspot_owner_id",
+            "closed_lost_reason",
+        ],
+    )
+
+    lost_total = 0
+    lost_by_reason = {}
+    lost_deal_list = []
+    for d in lost_deals:
+        p = d["properties"]
+        amt = parse_dollars(p.get("platform_amt"))
+        reason = p.get("closed_lost_reason", "") or "Not specified"
+        lost_total += amt
+        if reason not in lost_by_reason:
+            lost_by_reason[reason] = {"count": 0, "total": 0}
+        lost_by_reason[reason]["count"] += 1
+        lost_by_reason[reason]["total"] += amt
+        lost_deal_list.append(
+            {
+                "id": d["id"],
+                "name": p.get("dealname", ""),
+                "ae": owner_name(p.get("hubspot_owner_id")),
+                "type": classify_deal_type(p.get("dealtype", "")),
+                "ace_k1": classify_ace_k1(p.get("dealname", "")),
+                "close_date": p.get("closedate", ""),
+                "arr": amt,
+                "reason": reason,
+            }
+        )
+
+    # ACE/K1 mix — need won deals (requery Q01), lost deals (above), open Qual+ (Q13),
+    # and created deals (use pipeline_created from activity if available, else requery)
+    won_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {"propertyName": "dealstage", "operator": "EQ", "value": "138620988"},
+            {
+                "propertyName": "closedate",
+                "operator": "GTE",
+                "value": config["quarter_start"],
+            },
+            {
+                "propertyName": "closedate",
+                "operator": "LTE",
+                "value": config["quarter_end"],
+            },
+        ],
+        properties=["dealname", "dealtype", "platform_amt"],
+    )
+
+    q_start_ms = date_to_epoch_ms(config["quarter_start"])
+    q_end_ms = end_of_day_epoch_ms(config["quarter_end"])
+    created_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {
+                "propertyName": "hs_v2_date_entered_152455272",
+                "operator": "GTE",
+                "value": q_start_ms,
+            },
+            {
+                "propertyName": "hs_v2_date_entered_152455272",
+                "operator": "LTE",
+                "value": q_end_ms,
+            },
+        ],
+        properties=["dealname", "dealtype", "platform_amt"],
+    )
+
+    open_qual_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {
+                "propertyName": "dealstage",
+                "operator": "IN",
+                "value": ";".join(QUAL_PLUS),
+            },
+        ],
+        properties=["dealname", "dealtype", "platform_amt"],
+    )
+
+    def ace_k1_bucket(deals):
+        ace = {"count": 0, "total": 0}
+        k1 = {"count": 0, "total": 0}
+        for d in deals:
+            p = d["properties"]
+            amt = parse_dollars(p.get("platform_amt"))
+            if classify_ace_k1(p.get("dealname", "")) == "ACE":
+                ace["count"] += 1
+                ace["total"] += amt
+            else:
+                k1["count"] += 1
+                k1["total"] += amt
+        return {"ACE": ace, "K1": k1}
+
+    return {
+        "closed_lost": {
+            "total": lost_total,
+            "count": len(lost_deals),
+            "deals": sorted(lost_deal_list, key=lambda d: d["arr"], reverse=True),
+            "by_reason": lost_by_reason,
+        },
+        "ace_k1_mix": {
+            "created": ace_k1_bucket(created_deals),
+            "won": ace_k1_bucket(won_deals),
+            "lost": ace_k1_bucket(lost_deals),
+            "open": ace_k1_bucket(open_qual_deals),
+        },
+    }
 
 
 def compute_seller_performance(client, config):
-    return {}
+    q_start_ms = date_to_epoch_ms(config["quarter_start"])
+    q_end_ms = end_of_day_epoch_ms(config["quarter_end"])
+
+    # Closed-Won by seller
+    won_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {"propertyName": "dealstage", "operator": "EQ", "value": "138620988"},
+            {
+                "propertyName": "closedate",
+                "operator": "GTE",
+                "value": config["quarter_start"],
+            },
+            {
+                "propertyName": "closedate",
+                "operator": "LTE",
+                "value": config["quarter_end"],
+            },
+        ],
+        properties=["platform_amt", "hubspot_owner_id"],
+    )
+
+    # Closed-Lost by seller (Qual+ only, for win rate)
+    lost_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {"propertyName": "dealstage", "operator": "EQ", "value": "138669962"},
+            {
+                "propertyName": "closedate",
+                "operator": "GTE",
+                "value": config["quarter_start"],
+            },
+            {
+                "propertyName": "closedate",
+                "operator": "LTE",
+                "value": config["quarter_end"],
+            },
+            {
+                "propertyName": "hs_v2_date_entered_152455272",
+                "operator": "HAS_PROPERTY",
+            },
+        ],
+        properties=["platform_amt", "hubspot_owner_id"],
+    )
+
+    # Pipeline created by seller
+    pipe_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {
+                "propertyName": "hs_v2_date_entered_152455272",
+                "operator": "GTE",
+                "value": q_start_ms,
+            },
+            {
+                "propertyName": "hs_v2_date_entered_152455272",
+                "operator": "LTE",
+                "value": q_end_ms,
+            },
+        ],
+        properties=["platform_amt", "hubspot_owner_id"],
+    )
+
+    # IPMs by seller
+    ipm_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {
+                "propertyName": "ipm_held",
+                "operator": "GTE",
+                "value": config["quarter_start"],
+            },
+            {
+                "propertyName": "ipm_held",
+                "operator": "LTE",
+                "value": config["quarter_end"],
+            },
+        ],
+        properties=["hubspot_owner_id"],
+    )
+
+    # Q13: Open deals at Qual+ (for open pipeline and hygiene flags)
+    open_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {
+                "propertyName": "dealstage",
+                "operator": "IN",
+                "value": ";".join(QUAL_PLUS),
+            },
+        ],
+        properties=["platform_amt", "hubspot_owner_id", "hs_tag_ids"],
+    )
+
+    # Q14 + Q15: Emails and meetings in last month of quarter
+    lm_start, lm_end = last_month_of_quarter(
+        config["quarter_start"], config["quarter_end"]
+    )
+    lm_start_ms = date_to_epoch_ms(lm_start)
+    lm_end_ms = end_of_day_epoch_ms(lm_end)
+
+    lm_emails = client.search_objects(
+        "emails",
+        filters=[
+            {"propertyName": "hs_timestamp", "operator": "GTE", "value": lm_start_ms},
+            {"propertyName": "hs_timestamp", "operator": "LTE", "value": lm_end_ms},
+            {"propertyName": "hubspot_owner_id", "operator": "IN", "values": NB_TEAM},
+        ],
+        properties=["hs_timestamp", "hubspot_owner_id"],
+    )
+
+    lm_meetings = client.search_objects(
+        "meetings",
+        filters=[
+            {"propertyName": "hs_timestamp", "operator": "GTE", "value": lm_start_ms},
+            {"propertyName": "hs_timestamp", "operator": "LTE", "value": lm_end_ms},
+            {"propertyName": "hubspot_owner_id", "operator": "IN", "values": NB_TEAM},
+        ],
+        properties=["hs_timestamp", "hubspot_owner_id"],
+    )
+
+    # Build per-seller performance dict
+    sellers = {}
+    for oid in NB_TEAM:
+        name = OWNERS[oid]
+        sellers[name] = {
+            "bookings": 0,
+            "bookings_count": 0,
+            "pipeline_created": 0,
+            "pipeline_count": 0,
+            "ipms": 0,
+            "won_count": 0,
+            "lost_count": 0,
+            "win_rate": 0.0,
+            "emails_last_month": 0,
+            "meetings_last_month": 0,
+            "open_pipeline": 0,
+            "hygiene_flags": 0,
+        }
+
+    for d in won_deals:
+        oid = str(d["properties"].get("hubspot_owner_id", ""))
+        name = OWNERS.get(oid)
+        if name and name in sellers:
+            sellers[name]["bookings"] += parse_dollars(
+                d["properties"].get("platform_amt")
+            )
+            sellers[name]["bookings_count"] += 1
+            sellers[name]["won_count"] += 1
+
+    for d in lost_deals:
+        oid = str(d["properties"].get("hubspot_owner_id", ""))
+        name = OWNERS.get(oid)
+        if name and name in sellers:
+            sellers[name]["lost_count"] += 1
+
+    for d in pipe_deals:
+        oid = str(d["properties"].get("hubspot_owner_id", ""))
+        name = OWNERS.get(oid)
+        if name and name in sellers:
+            sellers[name]["pipeline_created"] += parse_dollars(
+                d["properties"].get("platform_amt")
+            )
+            sellers[name]["pipeline_count"] += 1
+
+    for d in ipm_deals:
+        oid = str(d["properties"].get("hubspot_owner_id", ""))
+        name = OWNERS.get(oid)
+        if name and name in sellers:
+            sellers[name]["ipms"] += 1
+
+    for d in open_deals:
+        oid = str(d["properties"].get("hubspot_owner_id", ""))
+        name = OWNERS.get(oid)
+        if name and name in sellers:
+            sellers[name]["open_pipeline"] += parse_dollars(
+                d["properties"].get("platform_amt")
+            )
+            if (d["properties"].get("hs_tag_ids") or "").strip():
+                sellers[name]["hygiene_flags"] += 1
+
+    for e in lm_emails:
+        oid = str(e["properties"].get("hubspot_owner_id", ""))
+        name = OWNERS.get(oid)
+        if name and name in sellers:
+            sellers[name]["emails_last_month"] += 1
+
+    for m in lm_meetings:
+        oid = str(m["properties"].get("hubspot_owner_id", ""))
+        name = OWNERS.get(oid)
+        if name and name in sellers:
+            sellers[name]["meetings_last_month"] += 1
+
+    # Compute win rates
+    for name in sellers:
+        s = sellers[name]
+        total_decisions = s["won_count"] + s["lost_count"]
+        s["win_rate"] = (
+            round(s["won_count"] / total_decisions * 100, 1) if total_decisions else 0.0
+        )
+        del s["won_count"]
+        del s["lost_count"]
+
+    return sellers
 
 
 def compute_initiatives(config):
-    return {}
+    ptm_path = config["ptm_path"]
+    if not os.path.exists(ptm_path):
+        return {
+            "ptm_file_date": None,
+            "pete_ptms": [],
+            "error": f"PTM file not found: {ptm_path}",
+        }
+
+    import openpyxl
+
+    wb = openpyxl.load_workbook(ptm_path, data_only=True)
+    ws = wb[wb.sheetnames[0]]
+    file_mod = datetime.fromtimestamp(os.path.getmtime(ptm_path), tz=ET)
+
+    pete_rows = []
+    in_pete = False
+    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, values_only=False):
+        vals = [c.value for c in row]
+        cell_text = str(vals[0] or "").strip()
+        if cell_text == "Pete":
+            in_pete = True
+            continue
+        elif cell_text and in_pete:
+            break
+        if in_pete:
+            pete_rows.append(
+                {
+                    "priority": str(vals[1] or "").strip(),
+                    "tactics": str(vals[2] or "").strip(),
+                    "metrics": str(vals[3] or "").strip(),
+                    "due_date": str(vals[4] or "").strip(),
+                    "status": str(vals[5] or "").strip(),
+                    "latest_update": str(vals[6] or "").strip()
+                    if len(vals) > 6
+                    else "",
+                }
+            )
+
+    return {
+        "ptm_file_date": file_mod.strftime("%Y-%m-%d"),
+        "ptm_sheet": wb.sheetnames[0],
+        "pete_ptms": [r for r in pete_rows if r["priority"]],
+    }
 
 
 # --- Main ---
