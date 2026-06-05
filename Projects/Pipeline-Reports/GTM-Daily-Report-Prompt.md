@@ -15,11 +15,10 @@ Use the HubSpot MCP connector (search_crm_objects, search_owners) to pull deal a
 Only track Sales Emails and External Meetings for these owners:
 
 - 693091902=Don Vanderslice
-- 81700088=Tim Long
 - 87170480=Pete Davies
 
 **Owner IDs (full team):**
-693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
+693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 87170480=Pete Davies
 
 **Fiscal Calendar:** FY runs Feb 1 - Jan 31. Q1=Feb-Apr, Q2=May-Jul, Q3=Aug-Oct, Q4=Nov-Jan. FY27 = Feb 2026 - Jan 2027.
 
@@ -34,11 +33,11 @@ Only track Sales Emails and External Meetings for these owners:
 
 2. **Pull 5 queries from HubSpot** (pipeline = "72018330" for deal queries):
 
-   **Query A0 -- Recent Sales Emails:** Search engagements (type = EMAIL) where hs_timestamp is within the lookback window AND hubspot_owner_id is IN [693091902, 81700088, 87170480]. Return total count, broken out by owner.
+   **Query A0 -- Recent Sales Emails:** Search engagements (type = EMAIL) where hs_timestamp is within the lookback window AND hubspot_owner_id is IN [693091902, 87170480]. Return total count, broken out by owner.
 
-   **Query A1 -- Recent External Meetings:** Search engagements (type = MEETING) where hs_timestamp is within the lookback window AND hubspot_owner_id is IN [693091902, 81700088, 87170480]. Return total count, broken out by owner.
+   **Query A1 -- Recent External Meetings:** Search engagements (type = MEETING) where hs_timestamp is within the lookback window AND hubspot_owner_id is IN [693091902, 87170480]. Return total count, broken out by owner.
 
-   **Query A2 -- Today's Meetings (New Biz Team):** Search meetings (objectType = "meetings") where hs_meeting_start_time GTE [today 00:00:00 UTC] AND hs_meeting_start_time LTE [today 23:59:59 UTC] AND hubspot_owner_id IN [693091902, 81700088, 87170480]. Properties: hs_meeting_title, hs_meeting_start_time, hs_meeting_end_time, hubspot_owner_id, hs_attendee_owner_ids. For each meeting returned, pull two association queries:
+   **Query A2 -- Today's Meetings (New Biz Team):** Search meetings (objectType = "meetings") where hs_meeting_start_time GTE [today 00:00:00 UTC] AND hs_meeting_start_time LTE [today 23:59:59 UTC] AND hubspot_owner_id IN [693091902, 87170480]. Properties: hs_meeting_title, hs_meeting_start_time, hs_meeting_end_time, hubspot_owner_id, hs_attendee_owner_ids. For each meeting returned, pull two association queries:
    - Associated contacts: search_crm_objects(objectType="contacts", associatedWith=[{objectType:"meetings", operator:"EQUAL", objectIdValues:[meeting_id]}]), properties: firstname, lastname, jobtitle, company. These are the external attendees.
    - Associated deals: search_crm_objects(objectType="deals", filterGroups=[{filters:[{propertyName:"pipeline", operator:"EQ", value:"72018330"}], associatedWith:[{objectType:"meetings", operator:"EQUAL", objectIdValues:[meeting_id]}]}]), properties: dealname, dealstage, platform_amt, dealtype, hubspot_owner_id. This gives the linked deal context.
      Map hs_attendee_owner_ids (semicolon-delimited) to names using the Owner IDs mapping -- these are internal Knotch attendees beyond the meeting owner. Sort meetings by hs_meeting_start_time ascending.
@@ -51,9 +50,9 @@ Only track Sales Emails and External Meetings for these owners:
 
 3. **Pull FY27 YTD totals** (all with dates >= 2026-02-01):
 
-   **Query E -- YTD Sales Emails:** Engagements type EMAIL, hs_timestamp GTE "2026-02-01", owner IN [693091902, 81700088, 87170480]. Total count.
+   **Query E -- YTD Sales Emails:** Engagements type EMAIL, hs_timestamp GTE "2026-02-01", owner IN [693091902, 87170480]. Total count.
 
-   **Query F -- YTD External Meetings:** Engagements type MEETING, hs_timestamp GTE "2026-02-01", owner IN [693091902, 81700088, 87170480]. Total count.
+   **Query F -- YTD External Meetings:** Engagements type MEETING, hs_timestamp GTE "2026-02-01", owner IN [693091902, 87170480]. Total count.
 
    **Query G -- YTD IPMs:** filter ipm_held GTE "2026-02-01", pipeline EQ "72018330". Just need the total count + count where dealtype = "New License". You can get total from the `total` field in the response and filter in code.
 
@@ -73,9 +72,9 @@ Only track Sales Emails and External Meetings for these owners:
 
    Run the following for each of the three windows (this week so far, same days last week, full last week):
 
-   **Query J -- Weekly Sales Emails:** Engagements type EMAIL, hs_timestamp within window, owner IN [693091902, 81700088, 87170480]. Total count.
+   **Query J -- Weekly Sales Emails:** Engagements type EMAIL, hs_timestamp within window, owner IN [693091902, 87170480]. Total count.
 
-   **Query K -- Weekly External Meetings:** Engagements type MEETING, hs_timestamp within window, owner IN [693091902, 81700088, 87170480]. Total count.
+   **Query K -- Weekly External Meetings:** Engagements type MEETING, hs_timestamp within window, owner IN [693091902, 87170480]. Total count.
 
    **Query L -- Weekly IPMs:** search_crm_objects with filter: ipm_held GTE [window_start] AND ipm_held LTE [window_end], pipeline EQ "72018330". Total count.
 

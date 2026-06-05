@@ -18,7 +18,7 @@ Full audit and cleanup plan for company ownership, lifecycle accuracy, and field
 | Andrew Bolton   | CS                                     | Yes -- active customers                       |
 | Eli Grant       | CS                                     | Yes -- active customers                       |
 | David Brown     | CS                                     | Yes -- active customers                       |
-| Tim Long        | AE                                     | Yes -- prospects                              |
+| Tim Long        | Former AE (departed)                   | No -- reassigned to Unassigned Marketing      |
 | Don Vanderslice | AE                                     | Yes -- prospects                              |
 | Pete Davies     | AE (Head of Growth, but owns accounts) | Yes -- prospects                              |
 | Lee Fine        | Former AE (departed 2026-06-03)        | No -- reassigned to Pete/Don/Unassigned       |
@@ -30,7 +30,7 @@ Full audit and cleanup plan for company ownership, lifecycle accuracy, and field
 ### Ownership Rules
 
 - **Active customers** -> owned by CS (Andrew, Eli, David)
-- **Prospects** -> owned by AE (Tim, Don, Pete)
+- **Prospects** -> owned by AE (Don, Pete)
 - **Unassigned / new inbound** -> "Unassigned Marketing" queue user
 - **Contact ownership** -> cascades from company owner (enforced by workflow)
 

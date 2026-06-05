@@ -16,7 +16,6 @@ Two agents are needed:
 | Seller          | HubSpot Owner ID | Slack User ID |
 | --------------- | ---------------- | ------------- |
 | Don Vanderslice | 693091902        | `U01UC2P9ZLH` |
-| Tim Long        | 81700088         | `U0969R3U716` |
 | Pete Davies     | 87170480         | `U0A81QQH82J` |
 
 ### Prompt
@@ -26,7 +25,6 @@ You are generating deal hygiene reports for individual sellers on the New Busine
 
 SELLERS:
 - 693091902 = Don Vanderslice (Slack: U01UC2P9ZLH)
-- 81700088 = Tim Long (Slack: U0969R3U716)
 - 87170480 = Pete Davies (Slack: U0A81QQH82J)
 
 DATA SOURCES:
@@ -192,7 +190,7 @@ IMPORTANT RULES:
 
 **Schedule:** Wednesday and Friday
 **Delivery:** Slack DM to Pete Davies (`U0A81QQH82J`)
-**Covers:** Don Vanderslice (693091902), Tim Long (81700088)
+**Covers:** Don Vanderslice (693091902)
 
 ### Prompt
 
@@ -201,8 +199,7 @@ You are generating a New Business team manager overview for Pete Davies at Knotc
 
 NB TEAM:
 - 693091902 = Don Vanderslice
-- - 81700088 = Tim Long
-
+-
 DELIVERY: Send as a Slack DM to Pete Davies (Slack: U0A81QQH82J)
 
 DATA SOURCES:
@@ -261,7 +258,6 @@ Wednesday, [Month] [Date], [Year]
 
 Seller Deals Flagged Pipeline
 Don Vanderslice [n] [n]% ([n]/[n]) $[sum]
-Tim Long [n] [n]% ([n]/[n]) $[sum]
 
 ---
 
@@ -291,7 +287,6 @@ Friday, [Month] [Date], [Year]
 
 Seller Deals Flagged Pipeline
 Don Vanderslice [n] [n]% ([n]/[n]) $[sum]
-Tim Long [n] [n]% ([n]/[n]) $[sum]
 
 ---
 

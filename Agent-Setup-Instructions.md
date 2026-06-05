@@ -75,7 +75,6 @@ Fill in each person's Google Doc URLs as they set up:
 | ----------------- | ---------------- | -------------- | ---------------------- |
 | Pete Davies       | 87170480         |                |                        |
 | Jason [LAST NAME] | [OWNER ID]       |                |                        |
-| Tim Long          | 81700088         |                |                        |
 | Don Vanderslice   | 693091902        |                |                        |
 
 ---

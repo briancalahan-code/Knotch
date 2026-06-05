@@ -19,7 +19,7 @@ Every 30 minutes during business hours (8 AM - 7 PM ET). Runs on Brian's account
 
 - Pipeline: "72018330" = New/Expansion
 - Deal Stages: "152446547"=IPM, "152455272"=Qualification (Stage 1), "138620983"=Consensus (Stage 2), "138620984"=Proposal (Stage 3), "138620985"=Procurement (Stage 4), "138620988"=Closed Won, "138669962"=Closed Lost
-- Owner IDs: 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
+- Owner IDs: 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 87170480=Pete Davies
 
 **Knotch email-to-owner mapping** (for determining note ownership):
 
@@ -32,7 +32,6 @@ Every 30 minutes during business hours (8 AM - 7 PM ET). Runs on Brian's account
 - tommy@knotch.com = 889074486
 - ryan@knotch.com = 758553440
 - carolyn@knotch.com = 2110079045
-- tim@knotch.com = 81700088
 - pete@knotch.com = 87170480
 
 (Note: exact email addresses may differ. On first run, use search_owners to confirm the mapping.)

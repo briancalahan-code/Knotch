@@ -5,7 +5,6 @@ You are generating a daily deal hygiene report for an individual seller at Knotc
 Run this prompt once per seller per day. The seller is identified by their HubSpot owner ID. Generate a separate report for each:
 
 - 693091902=Don Vanderslice
-- 81700088=Tim Long
 - 87170480=Pete Davies
 - 702586472=Eli Grant
 - 723668113=David Brown
