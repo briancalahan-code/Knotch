@@ -65,12 +65,12 @@ STAGES = {
 }
 
 LATE_STAGES = ["138620984", "138620985"]
+EARLY_STAGES = ["152455272", "138620983"]
 QUAL_PLUS = ["152455272", "138620983", "138620984", "138620985"]
 OPEN_STAGES = ["152446547", "152455272", "138620983", "138620984", "138620985"]
 
 OWNERS = {
     "693091902": "Don Vanderslice",
-    "349190077": "Lee Fine",
     "81700088": "Tim Long",
     "87170480": "Pete Davies",
     "702586472": "Eli Grant",
@@ -83,7 +83,7 @@ OWNERS = {
     "2110079045": "Carolyn Scott",
 }
 
-NB_TEAM = ["693091902", "349190077", "81700088", "87170480"]
+NB_TEAM = ["693091902", "81700088", "87170480"]
 
 
 # --- HubSpot API Client ---
@@ -180,7 +180,7 @@ def owner_name(owner_id):
 def classify_deal_type(dealtype):
     if dealtype == "New License":
         return "New Biz"
-    return "Upsell"
+    return "Upsell/Cross-sell"
 
 
 def classify_ace_k1(dealname):
@@ -188,6 +188,14 @@ def classify_ace_k1(dealname):
     if "ACE" in name_upper:
         return "ACE"
     return "K1"
+
+
+def classify_booking_type(dealname, owner_id, dealtype):
+    if str(owner_id) == "627390764" or (dealtype or "").lower() == "partnership":
+        return "Partnership"
+    if "ACE" in (dealname or "").upper():
+        return "ACE"
+    return "Non-ACE"
 
 
 def date_to_epoch_ms(date_str):
@@ -230,6 +238,17 @@ def build_config(args):
     prior_fy = f"FY{int(fy[2:]) - 1}"
     prior_q_start, prior_q_end = FISCAL_QUARTERS.get(prior_fy, {}).get(q, (None, None))
 
+    # Previous quarter (immediately preceding, for QoQ trending)
+    if q_num > 1:
+        prev_q = f"Q{q_num - 1}"
+        prev_q_fy = fy
+    else:
+        prev_q = "Q4"
+        prev_q_fy = f"FY{int(fy[2:]) - 1}"
+    prev_q_start, prev_q_end = FISCAL_QUARTERS.get(prev_q_fy, {}).get(
+        prev_q, (None, None)
+    )
+
     return {
         "mode": args.mode,
         "quarter": q,
@@ -241,6 +260,10 @@ def build_config(args):
         "next_q_end": next_q_end,
         "prior_q_start": prior_q_start,
         "prior_q_end": prior_q_end,
+        "prev_q": prev_q,
+        "prev_q_fy": prev_q_fy,
+        "prev_q_start": prev_q_start,
+        "prev_q_end": prev_q_end,
         "targets": QUARTERLY_TARGETS.get(fy, {}).get(q, {}),
         "dry_run": args.dry_run,
         "ptm_path": os.path.join(
@@ -370,14 +393,18 @@ def compute_bookings(client, config):
         platform = parse_dollars(p.get("platform_amt"))
         seller = owner_name(p.get("hubspot_owner_id"))
         dtype = classify_deal_type(p.get("dealtype", ""))
+        btype = classify_booking_type(
+            p.get("dealname", ""), p.get("hubspot_owner_id"), p.get("dealtype", "")
+        )
         by_seller[seller] = by_seller.get(seller, 0) + acv
-        by_type[dtype] = by_type.get(dtype, 0) + acv
+        by_type[btype] = by_type.get(btype, 0) + acv
         deal_list.append(
             {
                 "id": d["id"],
                 "name": p.get("dealname", ""),
                 "ae": seller,
                 "type": dtype,
+                "booking_type": btype,
                 "ace_k1": classify_ace_k1(p.get("dealname", "")),
                 "close_date": p.get("closedate", ""),
                 "acv": acv,
@@ -393,6 +420,7 @@ def compute_bookings(client, config):
         "pipeline_cat": {"count": 0, "total": 0, "deals": []},
         "omit": {"count": 0, "total": 0},
         "missing": {"count": 0, "total": 0, "deals": []},
+        "by_seller": {},
     }
     ic_forecast = {
         "commit": {"count": 0, "total": 0},
@@ -424,7 +452,7 @@ def compute_bookings(client, config):
             forecast["commit"]["count"] += 1
             forecast["commit"]["total"] += mfa
             forecast["commit"]["deals"].append(deal_info)
-        elif cat in ("best case", "best_case"):
+        elif cat == "best case":
             forecast["best_case"]["count"] += 1
             forecast["best_case"]["total"] += mfa
             forecast["best_case"]["deals"].append(deal_info)
@@ -440,12 +468,17 @@ def compute_bookings(client, config):
             forecast["missing"]["total"] += deal_amt
             forecast["missing"]["deals"].append(deal_info)
 
+        # Forecast by seller (Commit + Best Case only)
+        seller = deal_info["ae"]
+        if cat in ("commit", "best case"):
+            forecast["by_seller"][seller] = forecast["by_seller"].get(seller, 0) + mfa
+
         # IC forecast
         ic_cat = (p.get("hs_manual_forecast_category") or "").lower().strip()
         if ic_cat == "commit":
             ic_forecast["commit"]["count"] += 1
             ic_forecast["commit"]["total"] += deal_amt
-        elif ic_cat in ("best case", "best_case"):
+        elif ic_cat == "best case":
             ic_forecast["best_case"]["count"] += 1
             ic_forecast["best_case"]["total"] += deal_amt
         elif ic_cat == "pipeline":
@@ -637,7 +670,116 @@ def compute_activity(client, config):
         print(f"  Event Attendance query failed (non-fatal): {e}", file=sys.stderr)
         event_results = []
 
-    return {
+    # Q18-Q21: Prior quarter activity (QoQ trending)
+    prior_q = None
+    if config.get("prev_q_start"):
+        pq_start_ms = date_to_epoch_ms(config["prev_q_start"])
+        pq_end_ms = end_of_day_epoch_ms(config["prev_q_end"])
+
+        # Q18: Prior Q emails
+        pq_email_results = client.search_objects(
+            "emails",
+            filters=[
+                {
+                    "propertyName": "hs_timestamp",
+                    "operator": "GTE",
+                    "value": pq_start_ms,
+                },
+                {"propertyName": "hs_timestamp", "operator": "LTE", "value": pq_end_ms},
+                {
+                    "propertyName": "hubspot_owner_id",
+                    "operator": "IN",
+                    "values": NB_TEAM,
+                },
+            ],
+            properties=["hs_timestamp", "hubspot_owner_id"],
+        )
+        pq_emails_by_seller = {}
+        for e in pq_email_results:
+            seller = owner_name(e["properties"].get("hubspot_owner_id"))
+            pq_emails_by_seller[seller] = pq_emails_by_seller.get(seller, 0) + 1
+
+        # Q19: Prior Q meetings
+        pq_meeting_results = client.search_objects(
+            "meetings",
+            filters=[
+                {
+                    "propertyName": "hs_timestamp",
+                    "operator": "GTE",
+                    "value": pq_start_ms,
+                },
+                {"propertyName": "hs_timestamp", "operator": "LTE", "value": pq_end_ms},
+                {
+                    "propertyName": "hubspot_owner_id",
+                    "operator": "IN",
+                    "values": NB_TEAM,
+                },
+            ],
+            properties=["hs_timestamp", "hubspot_owner_id"],
+        )
+        pq_meetings_by_seller = {}
+        for m in pq_meeting_results:
+            seller = owner_name(m["properties"].get("hubspot_owner_id"))
+            pq_meetings_by_seller[seller] = pq_meetings_by_seller.get(seller, 0) + 1
+
+        # Q20: Prior Q IPMs
+        pq_ipm_deals = client.search_deals(
+            filters=[
+                {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+                {"propertyName": "ipm_held", "operator": "GTE", "value": pq_start_ms},
+                {"propertyName": "ipm_held", "operator": "LTE", "value": pq_end_ms},
+            ],
+            properties=["hubspot_owner_id"],
+        )
+        pq_ipms_by_seller = {}
+        for d in pq_ipm_deals:
+            seller = owner_name(d["properties"].get("hubspot_owner_id"))
+            pq_ipms_by_seller[seller] = pq_ipms_by_seller.get(seller, 0) + 1
+
+        # Q21: Prior Q pipeline created
+        pq_pipe_deals = client.search_deals(
+            filters=[
+                {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+                {
+                    "propertyName": "hs_v2_date_entered_152455272",
+                    "operator": "GTE",
+                    "value": pq_start_ms,
+                },
+                {
+                    "propertyName": "hs_v2_date_entered_152455272",
+                    "operator": "LTE",
+                    "value": pq_end_ms,
+                },
+            ],
+            properties=["amount", "hubspot_owner_id"],
+        )
+        pq_pipe_total = 0
+        pq_pipe_by_seller = {}
+        for d in pq_pipe_deals:
+            amt = parse_dollars(d["properties"].get("amount"))
+            seller = owner_name(d["properties"].get("hubspot_owner_id"))
+            pq_pipe_total += amt
+            pq_pipe_by_seller[seller] = pq_pipe_by_seller.get(seller, 0) + amt
+
+        prior_q = {
+            "quarter": config.get("prev_q", ""),
+            "emails": {
+                "total": len(pq_email_results),
+                "by_seller": pq_emails_by_seller,
+            },
+            "meetings": {
+                "total": len(pq_meeting_results),
+                "by_seller": pq_meetings_by_seller,
+            },
+            "ipms": {"total": len(pq_ipm_deals), "by_seller": pq_ipms_by_seller},
+            "pipeline_created": {
+                "total": pq_pipe_total,
+                "count": len(pq_pipe_deals),
+                "by_seller": pq_pipe_by_seller,
+            },
+        }
+
+    result = {
         "ipms": {
             "total": len(ipm_deals),
             "goal": config["targets"].get("ipms", 24),
@@ -649,6 +791,10 @@ def compute_activity(client, config):
         "pipeline_created": {
             "total": pipe_total,
             "count": len(pipe_deals),
+            "goal": config["targets"].get("pipeline", 0),
+            "pct_to_goal": round(pipe_total / config["targets"]["pipeline"] * 100, 1)
+            if config["targets"].get("pipeline")
+            else 0,
             "by_seller": pipe_by_seller,
             "by_type": pipe_by_type,
             "deals": sorted(pipe_deal_list, key=lambda d: d["acv"], reverse=True),
@@ -665,6 +811,9 @@ def compute_activity(client, config):
             "count": len(event_results),
         },
     }
+    if prior_q:
+        result["prior_q"] = prior_q
+    return result
 
 
 def compute_pipeline(client, config):
@@ -706,18 +855,22 @@ def compute_pipeline(client, config):
         parse_dollars(d["properties"].get("amount")) for d in late_stage_deals
     )
     late_deal_list = []
+    late_by_seller = {}
     for d in late_stage_deals:
         p = d["properties"]
+        acv = parse_dollars(p.get("amount"))
+        seller = owner_name(p.get("hubspot_owner_id"))
+        late_by_seller[seller] = late_by_seller.get(seller, 0) + acv
         late_deal_list.append(
             {
                 "id": d["id"],
                 "name": p.get("dealname", ""),
-                "ae": owner_name(p.get("hubspot_owner_id")),
+                "ae": seller,
                 "type": classify_deal_type(p.get("dealtype", "")),
                 "ace_k1": classify_ace_k1(p.get("dealname", "")),
                 "stage": STAGES.get(p.get("dealstage", ""), ""),
                 "close_date": p.get("closedate", ""),
-                "acv": parse_dollars(p.get("amount")),
+                "acv": acv,
                 "manager_forecast__stage_": p.get("manager_forecast__stage_", ""),
             }
         )
@@ -728,6 +881,7 @@ def compute_pipeline(client, config):
     # Q09: Late-stage deals — next Q close dates
     next_q_late = []
     next_q_late_total = 0
+    next_q_by_seller = {}
     if config["next_q_start"]:
         next_late_deals = client.search_deals(
             filters=[
@@ -763,18 +917,21 @@ def compute_pipeline(client, config):
         )
         for d in next_late_deals:
             p = d["properties"]
+            acv = parse_dollars(p.get("amount"))
+            seller = owner_name(p.get("hubspot_owner_id"))
+            next_q_by_seller[seller] = next_q_by_seller.get(seller, 0) + acv
             next_q_late.append(
                 {
                     "id": d["id"],
                     "name": p.get("dealname", ""),
-                    "ae": owner_name(p.get("hubspot_owner_id")),
+                    "ae": seller,
                     "stage": STAGES.get(p.get("dealstage", ""), ""),
                     "close_date": p.get("closedate", ""),
-                    "acv": parse_dollars(p.get("amount")),
+                    "acv": acv,
                 }
             )
 
-    # Q10: Early pipeline — next Q close dates (Qualification+)
+    # Q10: Early pipeline — next Q close dates (Qualification + Consensus only)
     next_q_early_total = 0
     next_q_early_deals = []
     if config["next_q_start"]:
@@ -784,7 +941,7 @@ def compute_pipeline(client, config):
                 {
                     "propertyName": "dealstage",
                     "operator": "IN",
-                    "values": QUAL_PLUS,
+                    "values": EARLY_STAGES,
                 },
                 {
                     "propertyName": "closedate",
@@ -811,28 +968,115 @@ def compute_pipeline(client, config):
         )
         for d in early_deals:
             p = d["properties"]
+            acv = parse_dollars(p.get("amount"))
+            seller = owner_name(p.get("hubspot_owner_id"))
+            next_q_by_seller[seller] = next_q_by_seller.get(seller, 0) + acv
             next_q_early_deals.append(
                 {
                     "id": d["id"],
                     "name": p.get("dealname", ""),
-                    "ae": owner_name(p.get("hubspot_owner_id")),
+                    "ae": seller,
                     "stage": STAGES.get(p.get("dealstage", ""), ""),
                     "close_date": p.get("closedate", ""),
-                    "acv": parse_dollars(p.get("amount")),
+                    "acv": acv,
                 }
             )
+
+    # Qual+ current Q: total open pipeline at Qualification+ with current Q close dates
+    qual_plus_deals = client.search_deals(
+        filters=[
+            {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+            {"propertyName": "dealstage", "operator": "IN", "values": QUAL_PLUS},
+            {
+                "propertyName": "closedate",
+                "operator": "GTE",
+                "value": config["quarter_start"],
+            },
+            {
+                "propertyName": "closedate",
+                "operator": "LTE",
+                "value": config["quarter_end"],
+            },
+        ],
+        properties=["amount", "hubspot_owner_id"],
+    )
+    qual_plus_total = sum(
+        parse_dollars(d["properties"].get("amount")) for d in qual_plus_deals
+    )
+    qual_plus_by_seller = {}
+    for d in qual_plus_deals:
+        p = d["properties"]
+        acv = parse_dollars(p.get("amount"))
+        seller = owner_name(p.get("hubspot_owner_id"))
+        qual_plus_by_seller[seller] = qual_plus_by_seller.get(seller, 0) + acv
+
+    # Next-Q forecast: open deals with next Q close dates, grouped by manager forecast
+    next_q_forecast_cbc_total = 0
+    next_q_forecast_by_seller = {}
+    if config["next_q_start"]:
+        next_q_forecast_deals = client.search_deals(
+            filters=[
+                {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+                {
+                    "propertyName": "dealstage",
+                    "operator": "IN",
+                    "values": OPEN_STAGES,
+                },
+                {
+                    "propertyName": "closedate",
+                    "operator": "GTE",
+                    "value": config["next_q_start"],
+                },
+                {
+                    "propertyName": "closedate",
+                    "operator": "LTE",
+                    "value": config["next_q_end"],
+                },
+            ],
+            properties=[
+                "amount",
+                "hubspot_owner_id",
+                "manager_forecast__stage_",
+                "manager_forecast_amount",
+            ],
+        )
+        for d in next_q_forecast_deals:
+            p = d["properties"]
+            cat = (p.get("manager_forecast__stage_") or "").lower().strip()
+            if cat in ("commit", "best case"):
+                mfa = (
+                    parse_dollars(p.get("manager_forecast_amount"))
+                    if p.get("manager_forecast_amount")
+                    else parse_dollars(p.get("amount"))
+                )
+                next_q_forecast_cbc_total += mfa
+                seller = owner_name(p.get("hubspot_owner_id"))
+                next_q_forecast_by_seller[seller] = (
+                    next_q_forecast_by_seller.get(seller, 0) + mfa
+                )
 
     return {
         "late_stage_current_q": {
             "total": late_total,
             "count": len(late_stage_deals),
+            "by_seller": late_by_seller,
             "deals": sorted(late_deal_list, key=lambda d: d["acv"], reverse=True),
         },
+        "qual_plus_current_q": {
+            "total": qual_plus_total,
+            "count": len(qual_plus_deals),
+            "by_seller": qual_plus_by_seller,
+        },
         "coverage_ratio": coverage,
+        "by_seller": qual_plus_by_seller,
         "next_q": {
             "late_stage_total": next_q_late_total,
             "late_stage_count": len(next_q_late),
             "early_total": next_q_early_total,
+            "qual_plus_total": next_q_late_total + next_q_early_total,
+            "by_seller": next_q_by_seller,
+            "forecast_cbc_total": next_q_forecast_cbc_total,
+            "forecast_cbc_by_seller": next_q_forecast_by_seller,
             "deals": sorted(
                 next_q_late + next_q_early_deals,
                 key=lambda d: d["acv"],
@@ -1087,7 +1331,7 @@ def compute_seller_performance(client, config):
     q_start_ms = date_to_epoch_ms(config["quarter_start"])
     q_end_ms = end_of_day_epoch_ms(config["quarter_end"])
 
-    # Closed-Won by seller
+    # Closed-Won by seller (Qual+ only, for win rate symmetry)
     won_deals = client.search_deals(
         filters=[
             {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
@@ -1101,6 +1345,10 @@ def compute_seller_performance(client, config):
                 "propertyName": "closedate",
                 "operator": "LTE",
                 "value": config["quarter_end"],
+            },
+            {
+                "propertyName": "hs_v2_date_entered_152455272",
+                "operator": "HAS_PROPERTY",
             },
         ],
         properties=["amount", "hubspot_owner_id"],

@@ -72,17 +72,27 @@ Draft 3 concise bullet points based on the data. Each should be:
 
 For a quarterly report, the tone should be retrospective + forward-looking. Example: "Q1 closed at $X.XXM (XX% to goal). [Key insight about the quarter]. Heading into Q2, [what needs to change/continue]."
 
-#### KPI Cards
+#### KPI Summary
 
-Format as a row of 5 cards:
+Format as a grid with Current Q and Next Q columns:
 
-| KPI                     | Value                                                                                           | Source                              |
-| ----------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------- |
-| Q Closed-Won            | Format `bookings.closed_won_total` as $X.XXM                                                    | bookings.closed_won_total           |
-| % to Q Goal             | `bookings.pct_to_goal`%                                                                         | bookings.pct_to_goal                |
-| Manager Forecast (C+BC) | Sum of `bookings.forecast.commit.total` + `bookings.forecast.best_case.total`, format as $X.XXM | bookings.forecast                   |
-| Late-Stage Pipeline     | Format `pipeline.late_stage_current_q.total` as $X.XXM                                          | pipeline.late_stage_current_q.total |
-| Next Q Line-of-Sight    | Format `pipeline.next_q.late_stage_total` as $X.XXM                                             | pipeline.next_q.late_stage_total    |
+| KPI                     | Current Q                                                                                       | Next Q                                                |
+| ----------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Closed-Won              | Format `bookings.closed_won_total` as $X.XXM (`bookings.pct_to_goal`% to goal)                  | —                                                     |
+| Total Pipeline (Qual+)  | Format `pipeline.qual_plus_current_q.total` as $X.XXM                                           | Format `pipeline.next_q.qual_plus_total` as $X.XXM    |
+| Late-Stage Pipeline     | Format `pipeline.late_stage_current_q.total` as $X.XXM                                          | Format `pipeline.next_q.late_stage_total` as $X.XXM   |
+| Manager Forecast (C+BC) | Sum of `bookings.forecast.commit.total` + `bookings.forecast.best_case.total`, format as $X.XXM | Format `pipeline.next_q.forecast_cbc_total` as $X.XXM |
+
+#### KPI by Seller
+
+| Seller          | Closed-Won | Pipeline (Current Q) | Pipeline (Next Q) | Forecast (C+BC) |
+| --------------- | ---------- | -------------------- | ----------------- | --------------- |
+| Don Vanderslice |            |                      |                   |                 |
+| Tim Long        |            |                      |                   |                 |
+| Pete Davies     |            |                      |                   |                 |
+| **Team Total**  |            |                      |                   |                 |
+
+Populate from `bookings.by_seller`, `pipeline.qual_plus_current_q.by_seller` (current Q), `pipeline.next_q.by_seller` (next Q), and `bookings.forecast.by_seller` (current Q) / `pipeline.next_q.forecast_cbc_by_seller` (next Q). Filter to NB team only (Don, Tim, Pete).
 
 Dollar formatting for KPI cards: divide by 1,000,000, round to 2 decimal places, prefix with $, suffix with M. Example: 1102500 -> $1.10M.
 
@@ -106,10 +116,13 @@ Populate from `bookings.deals[]`. Format ARR as $XXX,XXX. Sort by ARR descending
 
 #### Bookings by Type
 
-| Type | Amount | % of Total |
-| ---- | ------ | ---------- |
+| Type        | Amount | % of Total |
+| ----------- | ------ | ---------- |
+| ACE         |        |            |
+| Non-ACE     |        |            |
+| Partnership |        |            |
 
-Populate from `bookings.by_type`. Calculate % from total.
+Populate from `bookings.by_type`. ACE = deal name contains "ACE". Partnership = deals owned by Ben Smith (627390764) or dealtype "Partnership". Non-ACE = everything else. Calculate % from total.
 
 #### Manager Forecast Summary
 
@@ -144,16 +157,10 @@ If `bookings.forecast.missing.count` > 0:
 
 Populate from `activity.ipms.by_seller`.
 
-#### IPM Detail Table
-
-| Deal | AE  | Type | ACV | IPM Held Date |
-| ---- | --- | ---- | --- | ------------- |
-
-Populate from `activity.ipms.deals[]`.
-
 #### Pipeline Created
 
 - Total: $`activity.pipeline_created.total` (`activity.pipeline_created.count` deals)
+- Quarterly Goal: $`activity.pipeline_created.goal` — % to Goal: `activity.pipeline_created.pct_to_goal`%
 - ACE: $`activity.pipeline_created.by_type.ACE` | K1: $`activity.pipeline_created.by_type.K1`
 
 | Seller | Pipeline Created $ | # Deals |
@@ -168,12 +175,12 @@ Populate from `activity.pipeline_created.by_seller`.
 
 Populate from `activity.pipeline_created.deals[]`. Sort by ARR descending (already sorted).
 
-#### Activity by Seller
+#### Activity by Seller (Current Q vs Prior Q)
 
-| Seller | Emails | Meetings | IPMs (Actual/Goal) | Pipe Created $ |
-| ------ | ------ | -------- | ------------------ | -------------- |
+| Seller | Emails (Current Q) | Emails (Prior Q) | Meetings (Current Q) | Meetings (Prior Q) | IPMs (Actual/Goal) | Pipe Created $ |
+| ------ | ------------------ | ---------------- | -------------------- | ------------------ | ------------------ | -------------- |
 
-Populate from the respective `activity.*` sub-keys.
+Populate current Q from the respective `activity.*` sub-keys. Populate prior Q from `activity.prior_q.*` sub-keys. If `activity.prior_q` is absent (e.g., Q1 of first tracked FY), omit the Prior Q columns.
 
 #### Event Activity
 
@@ -193,17 +200,6 @@ Coverage ratio: `pipeline.coverage_ratio`x (late-stage $ / quarterly goal)
 | ---- | --- | ---- | ----- | ---------- | --- | ---------------- |
 
 Populate from `pipeline.late_stage_current_q.deals[]`.
-
-#### Forecast Comparison (IC vs Manager)
-
-| Category  | IC Forecast                               | Manager Forecast                       | Delta      |
-| --------- | ----------------------------------------- | -------------------------------------- | ---------- |
-| Commit    | `bookings.ic_forecast.commit.total`       | `bookings.forecast.commit.total`       | difference |
-| Best Case | `bookings.ic_forecast.best_case.total`    | `bookings.forecast.best_case.total`    | difference |
-| Pipeline  | `bookings.ic_forecast.pipeline_cat.total` | `bookings.forecast.pipeline_cat.total` | difference |
-| **Total** | `bookings.ic_forecast.total`              | `bookings.forecast.total`              | difference |
-
-_Pete's commentary placeholder:_ [Space for Pete to add his narrative overlay on the forecast]
 
 #### Next Quarter Line-of-Sight
 
@@ -271,7 +267,7 @@ Write a 1-2 sentence observation about the ACE/K1 conversion pattern. Example: "
 
 ### Section 5: Seller Performance
 
-For each seller in `seller_performance` (Pete Davies, Don Vanderslice, Lee Fine, Tim Long), write a 3-lens assessment:
+For each seller in `seller_performance` (Pete Davies, Don Vanderslice, Tim Long), write a 3-lens assessment:
 
 ```
 **[Seller Name]**  [Headline Tag]
@@ -301,13 +297,13 @@ Be honest but constructive — these go in Pete's report to leadership.
 
 #### Commission Achievement Table
 
-| Component               | Team (rollup) | Tim Long | Don Vanderslice | Lee Fine | Pete Davies | Ben Smith |
-| ----------------------- | ------------- | -------- | --------------- | -------- | ----------- | --------- |
-| Direct New Biz Bookings |               |          |                 |          |             | —         |
-| Pipeline Created — ACE  |               |          |                 |          |             |           |
-| Pipeline Created — K1   |               |          |                 |          |             |           |
-| IPMs                    |               |          |                 |          |             |           |
-| Win Rate                |               |          |                 |          |             |           |
+| Component               | Team (rollup) | Tim Long | Don Vanderslice | Pete Davies | Ben Smith |
+| ----------------------- | ------------- | -------- | --------------- | ----------- | --------- | --- |
+| Direct New Biz Bookings |               |          |                 |             |           | —   |
+| Pipeline Created — ACE  |               |          |                 |             |           |     |
+| Pipeline Created — K1   |               |          |                 |             |           |     |
+| IPMs                    |               |          |                 |             |           |     |
+| Win Rate                |               |          |                 |             |           |     |
 
 Populate from `seller_performance` data. Ben Smith is Partner channel — show bookings only if available from the overall bookings data.
 

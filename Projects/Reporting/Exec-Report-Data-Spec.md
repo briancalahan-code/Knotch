@@ -53,6 +53,7 @@ FY26 (for YoY comparison):
 
 - **Open stages:** IPM + Qualification + Consensus + Proposal + Procurement
 - **Qual+ (Qualification and above):** Qualification + Consensus + Proposal + Procurement
+- **Early stages (Qualification + Consensus):** Qualification + Consensus (excludes late-stage)
 - **Late-stage (Proposal+):** Proposal + Procurement
 
 ### Owner IDs
@@ -60,7 +61,6 @@ FY26 (for YoY comparison):
 | ID         | Name            | Team    | NB Team? |
 | ---------- | --------------- | ------- | -------- |
 | 693091902  | Don Vanderslice | NB      | Yes      |
-| 349190077  | Lee Fine        | NB      | Yes      |
 | 81700088   | Tim Long        | NB      | Yes      |
 | 87170480   | Pete Davies     | NB      | Yes      |
 | 702586472  | Eli Grant       | Other   | No       |
@@ -175,7 +175,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - hs_timestamp GTE `{quarter_start_ms}` (epoch ms)
   - hs_timestamp LTE `{quarter_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;349190077;81700088;87170480` (NB team)
+  - hubspot_owner_id IN `693091902;81700088;87170480` (NB team)
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes (could be hundreds)
 - **Aggregations:**
@@ -188,7 +188,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - hs_timestamp GTE `{quarter_start_ms}` (epoch ms)
   - hs_timestamp LTE `{quarter_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;349190077;81700088;87170480` (NB team)
+  - hubspot_owner_id IN `693091902;81700088;87170480` (NB team)
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes (could be hundreds)
 - **Aggregations:**
@@ -223,18 +223,48 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
   - SUM(amount) -> `pipeline.next_q.late_stage_total`
   - COUNT -> `pipeline.next_q.late_stage_count`
 
-#### Q10: Early Pipeline -- Next Q Close Dates (Qualification+)
+#### Q10: Early Pipeline -- Next Q Close Dates (Qualification + Consensus Only)
 
 - **Endpoint:** POST /crm/v3/objects/deals/search
 - **Filters:**
   - pipeline EQ `72018330`
-  - dealstage IN `152455272;138620983;138620984;138620985` (Qual+)
+  - dealstage IN `152455272;138620983` (Qualification + Consensus only -- excludes late-stage to avoid double-counting with Q09)
   - closedate GTE `{next_q_start}`
   - closedate LTE `{next_q_end}`
 - **Properties:** dealname, dealtype, amount, closedate, hubspot_owner_id, dealstage
 - **Pagination:** Yes
 - **Aggregations:**
   - SUM(amount) -> `pipeline.next_q.early_total`
+  - Combined with Q09: `pipeline.next_q.qual_plus_total` = late_stage_total + early_total
+
+#### Q10b: Qual+ Pipeline -- Current Q Close Dates
+
+- **Endpoint:** POST /crm/v3/objects/deals/search
+- **Filters:**
+  - pipeline EQ `72018330`
+  - dealstage IN `152455272;138620983;138620984;138620985` (Qual+)
+  - closedate GTE `{quarter_start}`
+  - closedate LTE `{quarter_end}`
+- **Properties:** amount, hubspot_owner_id
+- **Pagination:** Yes
+- **Aggregations:**
+  - SUM(amount) -> `pipeline.qual_plus_current_q.total`
+  - COUNT -> `pipeline.qual_plus_current_q.count`
+  - SUM GROUP BY hubspot_owner_id -> `pipeline.qual_plus_current_q.by_seller`
+
+#### Q10c: Next-Q Manager Forecast (Open Deals with Next Q Close Dates)
+
+- **Endpoint:** POST /crm/v3/objects/deals/search
+- **Filters:**
+  - pipeline EQ `72018330`
+  - dealstage IN `152446547;152455272;138620983;138620984;138620985` (all open stages)
+  - closedate GTE `{next_q_start}`
+  - closedate LTE `{next_q_end}`
+- **Properties:** amount, hubspot_owner_id, manager_forecast\_\_stage\_, manager_forecast_amount
+- **Pagination:** Yes
+- **Aggregations:**
+  - SUM(manager_forecast_amount) WHERE category IN (Commit, Best Case) -> `pipeline.next_q.forecast_cbc_total`
+  - SUM GROUP BY hubspot_owner_id (Commit + Best Case only) -> `pipeline.next_q.forecast_cbc_by_seller`
 
 #### Q11: Event Attendance (Current Quarter)
 
@@ -283,7 +313,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - hs_timestamp GTE `{last_month_start_ms}` (epoch ms)
   - hs_timestamp LTE `{last_month_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;349190077;81700088;87170480`
+  - hubspot_owner_id IN `693091902;81700088;87170480`
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes
 - **Aggregations:**
@@ -295,7 +325,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - hs_timestamp GTE `{last_month_start_ms}` (epoch ms)
   - hs_timestamp LTE `{last_month_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;349190077;81700088;87170480`
+  - hubspot_owner_id IN `693091902;81700088;87170480`
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes
 - **Aggregations:**
@@ -314,6 +344,63 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Extract:** Pete's rows from the most recent month's sheet
 - **Fields:** Priority, Tactics, Metrics, Due Date, Status, Latest Update
 - -> `initiatives.pete_ptms`
+
+### Prior Quarter Activity Queries (QoQ Trending)
+
+These queries mirror Q04-Q07 but target the immediately preceding fiscal quarter (e.g., Q1 when reporting Q2). Used for QoQ trending in Activity by Seller table.
+
+#### Q18: Prior Q Sales Emails (NB Team)
+
+- **Endpoint:** POST /crm/v3/objects/emails/search
+- **Filters:**
+  - hs_timestamp GTE `{prev_q_start_ms}` (epoch ms)
+  - hs_timestamp LTE `{prev_q_end_ms}` (epoch ms)
+  - hubspot_owner_id IN `693091902;81700088;87170480` (NB team)
+- **Properties:** hs_timestamp, hubspot_owner_id
+- **Pagination:** Yes
+- **Aggregations:**
+  - COUNT -> `activity.prior_q.emails.total`
+  - COUNT GROUP BY hubspot_owner_id -> `activity.prior_q.emails.by_seller`
+
+#### Q19: Prior Q External Meetings (NB Team)
+
+- **Endpoint:** POST /crm/v3/objects/meetings/search
+- **Filters:**
+  - hs_timestamp GTE `{prev_q_start_ms}` (epoch ms)
+  - hs_timestamp LTE `{prev_q_end_ms}` (epoch ms)
+  - hubspot_owner_id IN `693091902;81700088;87170480` (NB team)
+- **Properties:** hs_timestamp, hubspot_owner_id
+- **Pagination:** Yes
+- **Aggregations:**
+  - COUNT -> `activity.prior_q.meetings.total`
+  - COUNT GROUP BY hubspot_owner_id -> `activity.prior_q.meetings.by_seller`
+
+#### Q20: Prior Q IPMs Held
+
+- **Endpoint:** POST /crm/v3/objects/deals/search
+- **Filters:**
+  - pipeline EQ `72018330`
+  - ipm_held GTE `{prev_q_start_ms}` (epoch ms)
+  - ipm_held LTE `{prev_q_end_ms}` (epoch ms)
+- **Properties:** hubspot_owner_id
+- **Pagination:** No
+- **Aggregations:**
+  - COUNT -> `activity.prior_q.ipms.total`
+  - COUNT GROUP BY hubspot_owner_id -> `activity.prior_q.ipms.by_seller`
+
+#### Q21: Prior Q Pipeline Created
+
+- **Endpoint:** POST /crm/v3/objects/deals/search
+- **Filters:**
+  - pipeline EQ `72018330`
+  - hs_v2_date_entered_152455272 GTE `{prev_q_start_ms}` (epoch ms)
+  - hs_v2_date_entered_152455272 LTE `{prev_q_end_ms}` (epoch ms)
+- **Properties:** amount, hubspot_owner_id
+- **Pagination:** Yes
+- **Aggregations:**
+  - SUM(amount) -> `activity.prior_q.pipeline_created.total`
+  - COUNT -> `activity.prior_q.pipeline_created.count`
+  - SUM GROUP BY hubspot_owner_id -> `activity.prior_q.pipeline_created.by_seller`
 
 ---
 
@@ -336,7 +423,13 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 ### Deal Type Classification
 
 - `dealtype = "New License"` -> "New Biz"
-- All other values (Cross-sell, Upsell, Consulting, Winback, Partnership) -> "Upsell/Cross-sell"
+- All other values (Cross-sell, Upsell, Consulting, Winback, Partnership) -> "Upsell/Cross-sell" (note: the script returns this exact string)
+
+### Booking Type Classification (for `bookings.by_type`)
+
+- Partnership = owned by Ben Smith (627390764) OR dealtype "Partnership" (takes precedence)
+- ACE = deal name contains "ACE" (case-insensitive) AND not Partnership
+- Non-ACE = everything else
 
 ### ACE vs K1 Classification
 
@@ -358,8 +451,8 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 
 ### Win Rate
 
-- Numerator: Closed Won count in quarter (Qualification+ only)
-- Denominator: Closed Won + Closed Lost count in quarter (Qualification+ only, i.e., exclude IPM-stage losses)
+- Numerator: Closed Won count in quarter (Qualification+ only -- filter by `hs_v2_date_entered_152455272 HAS_PROPERTY`)
+- Denominator: Closed Won + Closed Lost count in quarter (both Qualification+ only -- excludes IPM-stage wins and losses)
 - By seller: use hubspot_owner_id for grouping
 - Display: 1 decimal place (e.g., 33.3%)
 
@@ -437,13 +530,15 @@ The exact JSON structure `compute_report.py` outputs. Every key path referenced 
     "yoy_prior": 132500,
     "yoy_pct_change": 732.1,
     "by_seller": { "Don Vanderslice": 307500 },
-    "by_type": { "New Biz": 602500, "Upsell": 500000 },
+    "by_type": { "ACE": 402500, "Non-ACE": 500000, "Partnership": 200000 },
     "deals": [
       {
         "id": "123",
         "name": "...",
         "ae": "...",
-        "type": "K1",
+        "type": "New Biz",
+        "booking_type": "ACE",
+        "ace_k1": "ACE",
         "close_date": "2026-03-15",
         "acv": 295000,
         "platform": 295000,
@@ -456,7 +551,15 @@ The exact JSON structure `compute_report.py` outputs. Every key path referenced 
       "pipeline_cat": { "count": 8, "total": 1200000, "deals": [] },
       "omit": { "count": 0, "total": 0 },
       "missing": { "count": 2, "total": 150000, "deals": [] },
+      "by_seller": { "Pete Davies": 500000, "Don Vanderslice": 800000 },
       "total": 2500000
+    },
+    "ic_forecast": {
+      "commit": { "count": 2, "total": 600000 },
+      "best_case": { "count": 3, "total": 400000 },
+      "pipeline_cat": { "count": 5, "total": 900000 },
+      "missing": { "count": 1, "total": 100000 },
+      "total": 1900000
     }
   },
   "activity": {
@@ -469,6 +572,8 @@ The exact JSON structure `compute_report.py` outputs. Every key path referenced 
     "pipeline_created": {
       "total": 4985450,
       "count": 27,
+      "goal": 6250000,
+      "pct_to_goal": 79.8,
       "by_seller": {},
       "by_type": { "ACE": 3210000, "K1": 1775450 },
       "deals": []
@@ -483,19 +588,37 @@ The exact JSON structure `compute_report.py` outputs. Every key path referenced 
     },
     "events": {
       "count": 12
+    },
+    "prior_q": {
+      "quarter": "Q1",
+      "emails": { "total": 780, "by_seller": { "Don Vanderslice": 390 } },
+      "meetings": { "total": 52, "by_seller": {} },
+      "ipms": { "total": 28, "by_seller": { "Pete Davies": 9 } },
+      "pipeline_created": { "total": 5200000, "count": 25, "by_seller": {} }
     }
   },
   "pipeline": {
     "late_stage_current_q": {
       "total": 3084450,
       "count": 10,
+      "by_seller": { "Don Vanderslice": 1200000, "Pete Davies": 884450 },
       "deals": []
     },
+    "qual_plus_current_q": {
+      "total": 5500000,
+      "count": 18,
+      "by_seller": { "Don Vanderslice": 2100000, "Pete Davies": 1500000 }
+    },
     "coverage_ratio": 2.8,
+    "by_seller": { "Don Vanderslice": 2100000, "Pete Davies": 1500000 },
     "next_q": {
       "late_stage_total": 960000,
       "late_stage_count": 4,
-      "early_total": 2500000,
+      "early_total": 1540000,
+      "qual_plus_total": 2500000,
+      "by_seller": { "Tim Long": 500000 },
+      "forecast_cbc_total": 800000,
+      "forecast_cbc_by_seller": { "Tim Long": 300000 },
       "deals": []
     }
   },
