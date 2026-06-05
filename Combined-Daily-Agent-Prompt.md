@@ -14,7 +14,6 @@ First, determine who you are running for. Look up the Granola account owner by c
 | Jason [LAST NAME] | [OWNER ID]       | [PASTE URL]        | [PASTE URL]                |
 | Tim Long          | 81700088         | [PASTE URL]        | [PASTE URL]                |
 | Don Vanderslice   | 693091902        | [PASTE URL]        | [PASTE URL]                |
-| Lee Fine          | 349190077        | [PASTE URL]        | [PASTE URL]                |
 
 Once you identify the person, set these for the rest of the run:
 
@@ -36,7 +35,7 @@ Once you identify the person, set these for the rest of the run:
 - Portal: 44523005
 - Pipeline: "72018330" = New/Expansion
 - Deal Stages: "152446547"=IPM, "152455272"=Qualification (Stage 1), "138620983"=Consensus (Stage 2), "138620984"=Proposal (Stage 3), "138620985"=Procurement (Stage 4), "138620988"=Closed Won, "138669962"=Closed Lost
-- All Owner IDs: 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 349190077=Lee Fine, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
+- All Owner IDs: 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
 
 **Knotch team domain:** @knotch.com
 

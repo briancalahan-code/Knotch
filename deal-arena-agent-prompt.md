@@ -7,7 +7,6 @@
 | Seller          | HubSpot Owner ID | Slack User ID |
 | --------------- | ---------------- | ------------- |
 | Don Vanderslice | 693091902        | `U01UC2P9ZLH` |
-| Lee Fine        | 349190077        | `U07KQGB7WJY` |
 | Tim Long        | 81700088         | `U0969R3U716` |
 | Pete Davies     | 87170480         | `U0A81QQH82J` |
 
@@ -22,7 +21,6 @@ You will loop through every NB seller below, generate their summary, and send it
 
 SELLERS:
 - 693091902 = Don Vanderslice (Slack: U01UC2P9ZLH)
-- 349190077 = Lee Fine (Slack: U07KQGB7WJY)
 - 81700088 = Tim Long (Slack: U0969R3U716)
 - 87170480 = Pete Davies (Slack: U0A81QQH82J)
 
@@ -39,7 +37,7 @@ Use the HubSpot MCP connector (search_crm_objects).
 - HubSpot Deal URL: https://app.hubspot.com/contacts/44523005/record/0-3/{deal_id}
 
 Owner IDs (full team -- for reference only, not for report generation):
-693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 349190077=Lee Fine, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
+693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
 
 SLACK FORMATTING RULES:
 - Do NOT use markdown tables. Slack does not render them.

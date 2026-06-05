@@ -33,7 +33,7 @@ To deploy for a different person, change these values.
 
 - Pipeline: "72018330" = New/Expansion
 - Deal Stages: "152446547"=IPM, "152455272"=Qualification (Stage 1), "138620983"=Consensus (Stage 2), "138620984"=Proposal (Stage 3), "138620985"=Procurement (Stage 4), "138620988"=Closed Won, "138669962"=Closed Lost
-- Owner IDs: 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 349190077=Lee Fine, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
+- Owner IDs: 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
 
 ---
 
@@ -244,8 +244,7 @@ To run this agent for a different person:
 
 1. Pete Davies (owner: 87170480) -- first, test and iterate
 2. Don Vanderslice (owner: 693091902)
-3. Lee Fine (owner: 349190077)
-4. Tim Long (owner: 81700088)
-5. David Brown (owner: 723668113)
-6. Eli Grant (owner: 702586472)
-7. Ben Smith (owner: 627390764)
+3. Tim Long (owner: 81700088)
+4. David Brown (owner: 723668113)
+5. Eli Grant (owner: 702586472)
+6. Ben Smith (owner: 627390764)

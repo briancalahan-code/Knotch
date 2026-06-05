@@ -5,7 +5,6 @@ You are generating a Friday Deal Arena weekly summary for an individual seller a
 Run this prompt once per seller on Friday. The seller is identified by their HubSpot owner ID:
 
 - 693091902=Don Vanderslice
-- 349190077=Lee Fine
 - 81700088=Tim Long
 - 87170480=Pete Davies
 - 702586472=Eli Grant
@@ -27,7 +26,7 @@ Use the HubSpot MCP connector (search_crm_objects).
 
 **HubSpot Deal URL:** `https://app.hubspot.com/contacts/44523005/record/0-3/{deal_id}`
 
-**Owner IDs (full team):** 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 349190077=Lee Fine, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
+**Owner IDs (full team):** 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
 
 ## Steps
 

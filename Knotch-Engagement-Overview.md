@@ -68,14 +68,14 @@ Knotch is an independent standard for measuring content marketing ROI. They help
 
 ### Account Executives
 
-| Name            | Territory                                        | Account Count | Pipeline Strength                                                                    |
-| --------------- | ------------------------------------------------ | ------------- | ------------------------------------------------------------------------------------ |
-| Don Vanderslice | West Coast / TX / Chicago                        | 300           | $2.59M, 26 deals, strong closures (H&R Block $200K, Edelman Financial Engines $375K) |
-| Lee Fine        | South / Vegas / NYC                              | 275           | $1.99M, 12 deals, Q1 wins (Choice Hotels $530K, Morgan Stanley $255K)                |
-| Tim Long        | East Coast / Midwest                             | 275           | $1.01M, 9 deals (EY-K1 $208K in procurement)                                         |
-| David Brown     | Large accounts (BofA, Samsung, Rocket Mortgage)  | —             | **Top performer:** $7.6M pipeline, avg deal score 61/100                             |
-| Eli Grant       | Key strategic accounts (Synchrony, Ally, Zillow) | —             | **Second top performer:** $4.4M pipeline, avg deal score 59/100                      |
-| Ben Smith       | Publicis, Fox                                    | —             | Managing Fox IQ renewal ($837K, 6 risk flags)                                        |
+| Name            | Territory                                                                   | Account Count | Pipeline Strength                                                                    |
+| --------------- | --------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------ |
+| Don Vanderslice | West Coast / TX / Chicago                                                   | 300           | $2.59M, 26 deals, strong closures (H&R Block $200K, Edelman Financial Engines $375K) |
+| ~~Lee Fine~~    | ~~South / Vegas / NYC~~ (departed 2026-06-03, deals reassigned to Pete/Don) | —             | Deals reassigned: see CRM-Ownership-Lifecycle-Cleanup.md                             |
+| Tim Long        | East Coast / Midwest                                                        | 275           | $1.01M, 9 deals (EY-K1 $208K in procurement)                                         |
+| David Brown     | Large accounts (BofA, Samsung, Rocket Mortgage)                             | —             | **Top performer:** $7.6M pipeline, avg deal score 61/100                             |
+| Eli Grant       | Key strategic accounts (Synchrony, Ally, Zillow)                            | —             | **Second top performer:** $4.4M pipeline, avg deal score 59/100                      |
+| Ben Smith       | Publicis, Fox                                                               | —             | Managing Fox IQ renewal ($837K, 6 risk flags)                                        |
 
 ### SDR / BDR Team
 
@@ -469,7 +469,7 @@ Focus areas for net-new contact generation:
 | **David Brown**     | $7.6M    | 61/100    | —     | Top performer; manages BofA, Samsung, Rocket Mortgage        |
 | **Eli Grant**       | $4.4M    | 59/100    | —     | Second top performer; manages Synchrony, Ally, Zillow        |
 | **Don Vanderslice** | $2.59M   | —         | 26    | H&R Block closing ($200K), Edelman Financial Engines ($375K) |
-| **Lee Fine**        | $1.99M   | —         | 12    | Choice Hotels ($530K), Morgan Stanley ($255K)                |
+| ~~**Lee Fine**~~    | —        | —         | —     | Departed 2026-06-03; deals reassigned to Pete/Don            |
 | **Tim Long**        | $1.01M   | —         | 9     | EY-K1 in procurement ($208K)                                 |
 
 ### At-Risk Deals

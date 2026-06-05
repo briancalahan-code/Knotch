@@ -28,7 +28,7 @@ MY_PRIORITIES_DOC  = "Daily Agent/Top Priorities.docx"
 
 - Portal: 44523005 | Pipeline: "72018330" (New/Expansion)
 - Stages: "152446547"=IPM, "152455272"=Qualification, "138620983"=Consensus, "138620984"=Proposal, "138620985"=Procurement, "138620988"=Closed Won, "138669962"=Closed Lost
-- Owner IDs: 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 349190077=Lee Fine, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
+- Owner IDs: 693091902=Don Vanderslice, 702586472=Eli Grant, 723668113=David Brown, 723668771=Andrew Bolton, 627390764=Ben Smith, 88616151=Brian Calahan, 889074486=Tommy Shaker, 758553440=Ryan Ruxton, 2110079045=Carolyn Scott, 81700088=Tim Long, 87170480=Pete Davies
 - Knotch domain: @knotch.com
 
 ---
