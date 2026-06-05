@@ -50,6 +50,17 @@ QUARTERLY_TARGETS = {
     }
 }
 
+SELLER_TARGETS = {
+    "bookings_annual": 1100000,
+    "bookings_quarterly": 275000,
+    "pipeline_created_quarterly": 1100000,
+    "ipms_quarterly": 24,
+    "open_pipeline": 4400000,
+    "win_rate": 29.0,
+}
+
+FORECAST_WEIGHTS = {"commit": 0.9, "best case": 0.5, "pipeline": 0.1}
+
 # --- HubSpot Field Mapping ---
 
 PIPELINE_ID = "72018330"
@@ -71,6 +82,7 @@ OPEN_STAGES = ["152446547", "152455272", "138620983", "138620984", "138620985"]
 
 OWNERS = {
     "693091902": "Don Vanderslice",
+    "349190077": "Lee Fine",
     "81700088": "Tim Long",
     "87170480": "Pete Davies",
     "702586472": "Eli Grant",
@@ -83,7 +95,7 @@ OWNERS = {
     "2110079045": "Carolyn Scott",
 }
 
-NB_TEAM = ["693091902", "81700088", "87170480"]
+NB_TEAM = ["693091902", "87170480"]
 
 
 # --- HubSpot API Client ---
@@ -343,6 +355,32 @@ def compute_bookings(client, config):
             parse_dollars(d["properties"].get("amount")) for d in prior_deals
         )
 
+    # Q02b: QoQ comparison (immediately preceding quarter)
+    qoq_total = 0
+    qoq_count = 0
+    if config.get("prev_q_start"):
+        prev_deals = client.search_deals(
+            filters=[
+                {"propertyName": "pipeline", "operator": "EQ", "value": PIPELINE_ID},
+                {"propertyName": "dealstage", "operator": "EQ", "value": "138620988"},
+                {
+                    "propertyName": "closedate",
+                    "operator": "GTE",
+                    "value": config["prev_q_start"],
+                },
+                {
+                    "propertyName": "closedate",
+                    "operator": "LTE",
+                    "value": config["prev_q_end"],
+                },
+            ],
+            properties=["amount"],
+        )
+        qoq_total = sum(
+            parse_dollars(d["properties"].get("amount")) for d in prev_deals
+        )
+        qoq_count = len(prev_deals)
+
     # Q03: Open deals with manager forecast (current Q close dates)
     forecast_deals = client.search_deals(
         filters=[
@@ -413,90 +451,70 @@ def compute_bookings(client, config):
             }
         )
 
-    # Manager forecast rollup
+    # Manager forecast rollup (weighted: 90% Commit, 50% Best Case, 10% Pipeline)
     forecast = {
-        "commit": {"count": 0, "total": 0, "deals": []},
-        "best_case": {"count": 0, "total": 0, "deals": []},
-        "pipeline_cat": {"count": 0, "total": 0, "deals": []},
-        "omit": {"count": 0, "total": 0},
-        "missing": {"count": 0, "total": 0, "deals": []},
+        "commit": {"count": 0, "pipeline": 0, "weighted": 0, "deals": []},
+        "best_case": {"count": 0, "pipeline": 0, "weighted": 0, "deals": []},
+        "pipeline_cat": {"count": 0, "pipeline": 0, "weighted": 0, "deals": []},
+        "omit": {"count": 0, "pipeline": 0},
+        "missing": {"count": 0, "pipeline": 0, "deals": []},
         "by_seller": {},
-    }
-    ic_forecast = {
-        "commit": {"count": 0, "total": 0},
-        "best_case": {"count": 0, "total": 0},
-        "pipeline_cat": {"count": 0, "total": 0},
-        "missing": {"count": 0, "total": 0},
     }
 
     for d in forecast_deals:
         p = d["properties"]
         deal_amt = parse_dollars(p.get("amount"))
-        mfa = (
-            parse_dollars(p.get("manager_forecast_amount"))
-            if p.get("manager_forecast_amount")
-            else deal_amt
-        )
+        cat = (p.get("manager_forecast__stage_") or "").lower().strip()
+        weight = FORECAST_WEIGHTS.get(cat, 0)
+        weighted = round(deal_amt * weight)
         deal_info = {
             "name": p.get("dealname", ""),
             "ae": owner_name(p.get("hubspot_owner_id")),
             "acv": deal_amt,
+            "weighted": weighted,
             "stage": STAGES.get(p.get("dealstage", ""), ""),
             "close_date": p.get("closedate", ""),
             "forecast_cat": p.get("manager_forecast__stage_", ""),
         }
 
-        # Manager forecast
-        cat = (p.get("manager_forecast__stage_") or "").lower().strip()
         if cat == "commit":
             forecast["commit"]["count"] += 1
-            forecast["commit"]["total"] += mfa
+            forecast["commit"]["pipeline"] += deal_amt
+            forecast["commit"]["weighted"] += weighted
             forecast["commit"]["deals"].append(deal_info)
         elif cat == "best case":
             forecast["best_case"]["count"] += 1
-            forecast["best_case"]["total"] += mfa
+            forecast["best_case"]["pipeline"] += deal_amt
+            forecast["best_case"]["weighted"] += weighted
             forecast["best_case"]["deals"].append(deal_info)
         elif cat == "pipeline":
             forecast["pipeline_cat"]["count"] += 1
-            forecast["pipeline_cat"]["total"] += mfa
+            forecast["pipeline_cat"]["pipeline"] += deal_amt
+            forecast["pipeline_cat"]["weighted"] += weighted
             forecast["pipeline_cat"]["deals"].append(deal_info)
         elif cat == "omit":
             forecast["omit"]["count"] += 1
-            forecast["omit"]["total"] += mfa
+            forecast["omit"]["pipeline"] += deal_amt
         else:
             forecast["missing"]["count"] += 1
-            forecast["missing"]["total"] += deal_amt
+            forecast["missing"]["pipeline"] += deal_amt
             forecast["missing"]["deals"].append(deal_info)
 
-        # Forecast by seller (Commit + Best Case only)
         seller = deal_info["ae"]
-        if cat in ("commit", "best case"):
-            forecast["by_seller"][seller] = forecast["by_seller"].get(seller, 0) + mfa
+        if cat in ("commit", "best case", "pipeline"):
+            forecast["by_seller"][seller] = (
+                forecast["by_seller"].get(seller, 0) + weighted
+            )
 
-        # IC forecast
-        ic_cat = (p.get("hs_manual_forecast_category") or "").lower().strip()
-        if ic_cat == "commit":
-            ic_forecast["commit"]["count"] += 1
-            ic_forecast["commit"]["total"] += deal_amt
-        elif ic_cat == "best case":
-            ic_forecast["best_case"]["count"] += 1
-            ic_forecast["best_case"]["total"] += deal_amt
-        elif ic_cat == "pipeline":
-            ic_forecast["pipeline_cat"]["count"] += 1
-            ic_forecast["pipeline_cat"]["total"] += deal_amt
-        else:
-            ic_forecast["missing"]["count"] += 1
-            ic_forecast["missing"]["total"] += deal_amt
-
-    forecast["total"] = (
-        forecast["commit"]["total"]
-        + forecast["best_case"]["total"]
-        + forecast["pipeline_cat"]["total"]
+    forecast["pipeline_total"] = (
+        forecast["commit"]["pipeline"]
+        + forecast["best_case"]["pipeline"]
+        + forecast["pipeline_cat"]["pipeline"]
     )
-    ic_forecast["total"] = (
-        ic_forecast["commit"]["total"]
-        + ic_forecast["best_case"]["total"]
-        + ic_forecast["pipeline_cat"]["total"]
+    forecast["weighted_total"] = (
+        forecast["commit"]["weighted"]
+        + forecast["best_case"]["weighted"]
+        + forecast["pipeline_cat"]["weighted"]
     )
 
     yoy_pct = (
@@ -504,19 +522,28 @@ def compute_bookings(client, config):
         if yoy_total
         else None
     )
+    qoq_pct = (
+        round((closed_won_total - qoq_total) / qoq_total * 100, 1)
+        if qoq_total
+        else None
+    )
+    aov = round(closed_won_total / len(won_deals)) if won_deals else 0
 
     return {
         "closed_won_total": closed_won_total,
         "closed_won_count": len(won_deals),
         "quarterly_goal": goal,
         "pct_to_goal": pct_to_goal,
+        "aov": aov,
         "yoy_prior": yoy_total,
         "yoy_pct_change": yoy_pct,
+        "qoq_prior": qoq_total,
+        "qoq_prior_count": qoq_count,
+        "qoq_pct_change": qoq_pct,
         "by_seller": by_seller,
         "by_type": by_type,
         "deals": sorted(deal_list, key=lambda d: d["acv"], reverse=True),
         "forecast": forecast,
-        "ic_forecast": ic_forecast,
     }
 
 
@@ -670,6 +697,18 @@ def compute_activity(client, config):
         print(f"  Event Attendance query failed (non-fatal): {e}", file=sys.stderr)
         event_results = []
 
+    # Group events by name and status
+    events_by_event = {}
+    events_by_status = {}
+    for ev in event_results:
+        p = ev["properties"]
+        ename = p.get("event_name", "Unknown")
+        estatus = p.get("event_status", "Unknown")
+        if ename not in events_by_event:
+            events_by_event[ename] = {}
+        events_by_event[ename][estatus] = events_by_event[ename].get(estatus, 0) + 1
+        events_by_status[estatus] = events_by_status.get(estatus, 0) + 1
+
     # Q18-Q21: Prior quarter activity (QoQ trending)
     prior_q = None
     if config.get("prev_q_start"):
@@ -761,6 +800,31 @@ def compute_activity(client, config):
             pq_pipe_total += amt
             pq_pipe_by_seller[seller] = pq_pipe_by_seller.get(seller, 0) + amt
 
+        # Q22: Prior Q events
+        try:
+            pq_event_results = client.search_objects(
+                "2-62279031",
+                filters=[
+                    {
+                        "propertyName": "event_date",
+                        "operator": "GTE",
+                        "value": pq_start_ms,
+                    },
+                    {
+                        "propertyName": "event_date",
+                        "operator": "LTE",
+                        "value": pq_end_ms,
+                    },
+                ],
+                properties=["event_name", "event_date", "event_status"],
+            )
+        except Exception:
+            pq_event_results = []
+        pq_events_by_status = {}
+        for ev in pq_event_results:
+            estatus = ev["properties"].get("event_status", "Unknown")
+            pq_events_by_status[estatus] = pq_events_by_status.get(estatus, 0) + 1
+
         prior_q = {
             "quarter": config.get("prev_q", ""),
             "emails": {
@@ -776,6 +840,10 @@ def compute_activity(client, config):
                 "total": pq_pipe_total,
                 "count": len(pq_pipe_deals),
                 "by_seller": pq_pipe_by_seller,
+            },
+            "events": {
+                "total": len(pq_event_results),
+                "by_status": pq_events_by_status,
             },
         }
 
@@ -808,7 +876,9 @@ def compute_activity(client, config):
             "by_seller": meetings_by_seller,
         },
         "events": {
-            "count": len(event_results),
+            "total": len(event_results),
+            "by_status": events_by_status,
+            "by_event": events_by_event,
         },
     }
     if prior_q:
@@ -1010,9 +1080,16 @@ def compute_pipeline(client, config):
         seller = owner_name(p.get("hubspot_owner_id"))
         qual_plus_by_seller[seller] = qual_plus_by_seller.get(seller, 0) + acv
 
-    # Next-Q forecast: open deals with next Q close dates, grouped by manager forecast
-    next_q_forecast_cbc_total = 0
+    # Next-Q weighted forecast: 90% Commit, 50% Best Case, 10% Pipeline
+    next_q_forecast_weighted = 0
+    next_q_forecast_pipeline = 0
     next_q_forecast_by_seller = {}
+    next_q_forecast_by_cat = {
+        "commit": {"count": 0, "pipeline": 0, "weighted": 0},
+        "best_case": {"count": 0, "pipeline": 0, "weighted": 0},
+        "pipeline": {"count": 0, "pipeline": 0, "weighted": 0},
+        "missing": {"count": 0, "pipeline": 0},
+    }
     if config["next_q_start"]:
         next_q_forecast_deals = client.search_deals(
             filters=[
@@ -1037,23 +1114,38 @@ def compute_pipeline(client, config):
                 "amount",
                 "hubspot_owner_id",
                 "manager_forecast__stage_",
-                "manager_forecast_amount",
             ],
         )
         for d in next_q_forecast_deals:
             p = d["properties"]
+            deal_amt = parse_dollars(p.get("amount"))
             cat = (p.get("manager_forecast__stage_") or "").lower().strip()
-            if cat in ("commit", "best case"):
-                mfa = (
-                    parse_dollars(p.get("manager_forecast_amount"))
-                    if p.get("manager_forecast_amount")
-                    else parse_dollars(p.get("amount"))
-                )
-                next_q_forecast_cbc_total += mfa
-                seller = owner_name(p.get("hubspot_owner_id"))
-                next_q_forecast_by_seller[seller] = (
-                    next_q_forecast_by_seller.get(seller, 0) + mfa
-                )
+            weight = FORECAST_WEIGHTS.get(cat, 0)
+            weighted = round(deal_amt * weight)
+            seller = owner_name(p.get("hubspot_owner_id"))
+
+            if cat == "commit":
+                next_q_forecast_by_cat["commit"]["count"] += 1
+                next_q_forecast_by_cat["commit"]["pipeline"] += deal_amt
+                next_q_forecast_by_cat["commit"]["weighted"] += weighted
+            elif cat == "best case":
+                next_q_forecast_by_cat["best_case"]["count"] += 1
+                next_q_forecast_by_cat["best_case"]["pipeline"] += deal_amt
+                next_q_forecast_by_cat["best_case"]["weighted"] += weighted
+            elif cat == "pipeline":
+                next_q_forecast_by_cat["pipeline"]["count"] += 1
+                next_q_forecast_by_cat["pipeline"]["pipeline"] += deal_amt
+                next_q_forecast_by_cat["pipeline"]["weighted"] += weighted
+            else:
+                next_q_forecast_by_cat["missing"]["count"] += 1
+                next_q_forecast_by_cat["missing"]["pipeline"] += deal_amt
+                continue
+
+            next_q_forecast_weighted += weighted
+            next_q_forecast_pipeline += deal_amt
+            next_q_forecast_by_seller[seller] = (
+                next_q_forecast_by_seller.get(seller, 0) + weighted
+            )
 
     return {
         "late_stage_current_q": {
@@ -1075,8 +1167,12 @@ def compute_pipeline(client, config):
             "early_total": next_q_early_total,
             "qual_plus_total": next_q_late_total + next_q_early_total,
             "by_seller": next_q_by_seller,
-            "forecast_cbc_total": next_q_forecast_cbc_total,
-            "forecast_cbc_by_seller": next_q_forecast_by_seller,
+            "forecast": {
+                "by_category": next_q_forecast_by_cat,
+                "pipeline_total": next_q_forecast_pipeline,
+                "weighted_total": next_q_forecast_weighted,
+                "by_seller": next_q_forecast_by_seller,
+            },
             "deals": sorted(
                 next_q_late + next_q_early_deals,
                 key=lambda d: d["acv"],
@@ -1626,6 +1722,7 @@ def main():
     report = {
         "meta": build_meta(config),
         "targets": config["targets"],
+        "seller_targets": SELLER_TARGETS,
         "data_quality": {},
     }
 

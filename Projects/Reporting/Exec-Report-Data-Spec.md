@@ -61,7 +61,6 @@ FY26 (for YoY comparison):
 | ID         | Name            | Team    | NB Team? |
 | ---------- | --------------- | ------- | -------- |
 | 693091902  | Don Vanderslice | NB      | Yes      |
-| 81700088   | Tim Long        | NB      | Yes      |
 | 87170480   | Pete Davies     | NB      | Yes      |
 | 702586472  | Eli Grant       | Other   | No       |
 | 723668113  | David Brown     | Other   | No       |
@@ -175,7 +174,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - hs_timestamp GTE `{quarter_start_ms}` (epoch ms)
   - hs_timestamp LTE `{quarter_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;81700088;87170480` (NB team)
+  - hubspot_owner_id IN `693091902;87170480` (NB team)
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes (could be hundreds)
 - **Aggregations:**
@@ -188,7 +187,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - hs_timestamp GTE `{quarter_start_ms}` (epoch ms)
   - hs_timestamp LTE `{quarter_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;81700088;87170480` (NB team)
+  - hubspot_owner_id IN `693091902;87170480` (NB team)
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes (could be hundreds)
 - **Aggregations:**
@@ -313,7 +312,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - hs_timestamp GTE `{last_month_start_ms}` (epoch ms)
   - hs_timestamp LTE `{last_month_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;81700088;87170480`
+  - hubspot_owner_id IN `693091902;87170480`
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes
 - **Aggregations:**
@@ -325,7 +324,7 @@ Every HubSpot API query the script makes. Query IDs (Q01-Q17) are referenced by 
 - **Filters:**
   - hs_timestamp GTE `{last_month_start_ms}` (epoch ms)
   - hs_timestamp LTE `{last_month_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;81700088;87170480`
+  - hubspot_owner_id IN `693091902;87170480`
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes
 - **Aggregations:**
@@ -355,7 +354,7 @@ These queries mirror Q04-Q07 but target the immediately preceding fiscal quarter
 - **Filters:**
   - hs_timestamp GTE `{prev_q_start_ms}` (epoch ms)
   - hs_timestamp LTE `{prev_q_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;81700088;87170480` (NB team)
+  - hubspot_owner_id IN `693091902;87170480` (NB team)
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes
 - **Aggregations:**
@@ -368,7 +367,7 @@ These queries mirror Q04-Q07 but target the immediately preceding fiscal quarter
 - **Filters:**
   - hs_timestamp GTE `{prev_q_start_ms}` (epoch ms)
   - hs_timestamp LTE `{prev_q_end_ms}` (epoch ms)
-  - hubspot_owner_id IN `693091902;81700088;87170480` (NB team)
+  - hubspot_owner_id IN `693091902;87170480` (NB team)
 - **Properties:** hs_timestamp, hubspot_owner_id
 - **Pagination:** Yes
 - **Aggregations:**
@@ -616,9 +615,9 @@ The exact JSON structure `compute_report.py` outputs. Every key path referenced 
       "late_stage_count": 4,
       "early_total": 1540000,
       "qual_plus_total": 2500000,
-      "by_seller": { "Tim Long": 500000 },
+      "by_seller": { "Don Vanderslice": 500000 },
       "forecast_cbc_total": 800000,
-      "forecast_cbc_by_seller": { "Tim Long": 300000 },
+      "forecast_cbc_by_seller": { "Don Vanderslice": 300000 },
       "deals": []
     }
   },

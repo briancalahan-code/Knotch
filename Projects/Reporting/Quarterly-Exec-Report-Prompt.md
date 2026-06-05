@@ -4,6 +4,8 @@ You are generating a quarterly executive sales report for Pete Davies (Head of N
 
 **Important:** This prompt requires shell access (Bash tool). It works in Claude Code (CLI), Claude desktop, or Claude Code IDE extensions. It does NOT work in claude.ai web.
 
+**Scope:** All deal data should be filtered to NB team owners only (currently Don Vanderslice and Pete Davies). Departed team members (Tim Long, Lee Fine) should appear in historical data if they have activity in the reporting period.
+
 ---
 
 ## Step 1: Run the data script
@@ -33,7 +35,7 @@ cat /tmp/exec_report_data.json
 
 ## Step 3: Format the report
 
-Use the structure below. Replace all `{json.path}` references with the actual values from the JSON.
+Use the structure below. Filter all deal-level data to NB team owners only (check `seller_performance` keys for active NB members; also include any departed members with data in the period from `bookings.by_seller`, `activity.ipms.by_seller`, etc.).
 
 ---
 
@@ -50,9 +52,9 @@ Data source: HubSpot CRM (live pull)
 ### Table of Contents
 
 ```
-1. Bookings (QTD)
-2. Activity (QTD)
-3. Pipeline (Current Q + Next Q)
+1. Bookings
+2. Activity
+3. Pipeline (Next Q)
 4. Market Feedback
 5. Seller Performance
 6. Initiatives
@@ -70,187 +72,170 @@ Draft 3 concise bullet points based on the data. Each should be:
 - **Forward-looking** — what it means for the next quarter
 - **Actionable** — what needs to happen
 
-For a quarterly report, the tone should be retrospective + forward-looking. Example: "Q1 closed at $X.XXM (XX% to goal). [Key insight about the quarter]. Heading into Q2, [what needs to change/continue]."
+For a quarterly report, the tone should be retrospective + forward-looking. Include AoV and QoQ bookings change. Example: "Q1 NB bookings: $X.XXM (XX% to goal), AoV $XXX,XXX, down XX% QoQ. [Key insight]. Heading into Q2, [what needs to happen]."
 
 #### KPI Summary
 
-Format as a grid with Current Q and Next Q columns:
-
-| KPI                     | Current Q                                                                                       | Next Q                                                |
-| ----------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| Closed-Won              | Format `bookings.closed_won_total` as $X.XXM (`bookings.pct_to_goal`% to goal)                  | —                                                     |
-| Total Pipeline (Qual+)  | Format `pipeline.qual_plus_current_q.total` as $X.XXM                                           | Format `pipeline.next_q.qual_plus_total` as $X.XXM    |
-| Late-Stage Pipeline     | Format `pipeline.late_stage_current_q.total` as $X.XXM                                          | Format `pipeline.next_q.late_stage_total` as $X.XXM   |
-| Manager Forecast (C+BC) | Sum of `bookings.forecast.commit.total` + `bookings.forecast.best_case.total`, format as $X.XXM | Format `pipeline.next_q.forecast_cbc_total` as $X.XXM |
+| KPI                    | Current Q (Actual)                                  | Next Q                                                          |
+| ---------------------- | --------------------------------------------------- | --------------------------------------------------------------- |
+| NB Bookings            | `bookings.closed_won_total` NB-filtered (% to goal) | —                                                               |
+| AoV                    | `bookings.aov` NB-filtered                          | —                                                               |
+| QoQ Change             | `bookings.qoq_pct_change`% vs `bookings.qoq_prior`  | —                                                               |
+| Total Pipeline (Qual+) | —                                                   | `pipeline.next_q.qual_plus_total` NB-filtered                   |
+| Late-Stage (Proposal+) | —                                                   | `pipeline.next_q.late_stage_total` NB-filtered                  |
+| Manager Forecast       | —                                                   | `pipeline.next_q.forecast.weighted_total` NB-filtered (vs goal) |
 
 #### KPI by Seller
 
-| Seller          | Closed-Won | Pipeline (Current Q) | Pipeline (Next Q) | Forecast (C+BC) |
-| --------------- | ---------- | -------------------- | ----------------- | --------------- |
-| Don Vanderslice |            |                      |                   |                 |
-| Tim Long        |            |                      |                   |                 |
-| Pete Davies     |            |                      |                   |                 |
-| **Team Total**  |            |                      |                   |                 |
+| Seller | Q Bookings | Pipe Created | IPMs | Next Q Pipeline | Next Q Coverage |
+| ------ | ---------- | ------------ | ---- | --------------- | --------------- |
 
-Populate from `bookings.by_seller`, `pipeline.qual_plus_current_q.by_seller` (current Q), `pipeline.next_q.by_seller` (next Q), and `bookings.forecast.by_seller` (current Q) / `pipeline.next_q.forecast_cbc_by_seller` (next Q). Filter to NB team only (Don, Tim, Pete).
+Populate from `bookings.by_seller`, `activity.pipeline_created.by_seller`, `activity.ipms.by_seller`, `pipeline.next_q.by_seller`. Filter to NB team. Include departed members if they have data.
+
+Next Q Coverage = seller's next Q pipeline / `seller_targets.bookings_quarterly`.
+
+Per-seller goals from `seller_targets`: $275K bookings/Q, $1.1M pipe created/Q, 24 IPMs/Q, $4.4M open pipeline, 29% win rate.
 
 Dollar formatting for KPI cards: divide by 1,000,000, round to 2 decimal places, prefix with $, suffix with M. Example: 1102500 -> $1.10M.
 
 ---
 
-### Section 1: Bookings (QTD)
+### Section 1: Bookings
 
-#### Closed-Won Summary
+#### Closed-Won Summary (NB Team)
 
-- Q Closed-Won: $`bookings.closed_won_total` ({bookings.closed_won_count} deals)
+- Q Closed-Won (NB): Sum NB team sellers from `bookings.by_seller` ({count} deals), AoV: `bookings.aov`
 - Quarterly Goal: $`bookings.quarterly_goal`
-- % to Goal: `bookings.pct_to_goal`%
-- YoY: Prior year same Q was $`bookings.yoy_prior` ({bookings.yoy_pct_change}% change). If `yoy_pct_change` is null, write "No prior year data available."
+- % to Goal: computed from NB total vs goal
+- QoQ: Prior Q was $`bookings.qoq_prior` (`bookings.qoq_pct_change`% change)
 
 #### Closed-Won Detail Table
 
 | Deal | AE  | Type | Close Date | ACV |
 | ---- | --- | ---- | ---------- | --- |
 
-Populate from `bookings.deals[]`. Format ARR as $XXX,XXX. Sort by ARR descending (already sorted in JSON).
+Populate from `bookings.deals[]`, filtered to NB team owners. Format ACV as $XXX,XXX. Sort by ACV descending.
 
-#### Bookings by Type
+#### Bookings by Type (NB Only)
 
-| Type        | Amount | % of Total |
-| ----------- | ------ | ---------- |
-| ACE         |        |            |
-| Non-ACE     |        |            |
-| Partnership |        |            |
+| Type    | Amount | % of Total |
+| ------- | ------ | ---------- |
+| ACE     |        |            |
+| Non-ACE |        |            |
 
-Populate from `bookings.by_type`. ACE = deal name contains "ACE". Partnership = deals owned by Ben Smith (627390764) or dealtype "Partnership". Non-ACE = everything else. Calculate % from total.
+Compute from NB-filtered deals using their `booking_type` field.
 
-#### Manager Forecast Summary
+#### Manager Forecast
 
-| Category  | # Deals | $ Total                   | Top 3 Deals                                             |
-| --------- | ------- | ------------------------- | ------------------------------------------------------- |
-| Commit    |         |                           | List top 3 by ARR from `bookings.forecast.commit.deals` |
-| Best Case |         |                           | List top 3 from `bookings.forecast.best_case.deals`     |
-| Pipeline  |         |                           | List top 3 from `bookings.forecast.pipeline_cat.deals`  |
-| **Total** |         | `bookings.forecast.total` |                                                         |
+| Category  | # Deals                                | $ Pipeline                                | $ Manager Forecast                        | Weight |
+| --------- | -------------------------------------- | ----------------------------------------- | ----------------------------------------- | ------ |
+| Commit    | `bookings.forecast.commit.count`       | `bookings.forecast.commit.pipeline`       | `bookings.forecast.commit.weighted`       | 90%    |
+| Best Case | `bookings.forecast.best_case.count`    | `bookings.forecast.best_case.pipeline`    | `bookings.forecast.best_case.weighted`    | 50%    |
+| Pipeline  | `bookings.forecast.pipeline_cat.count` | `bookings.forecast.pipeline_cat.pipeline` | `bookings.forecast.pipeline_cat.weighted` | 10%    |
+| **Total** |                                        | `bookings.forecast.pipeline_total`        | `bookings.forecast.weighted_total`        |        |
 
 If `bookings.forecast.missing.count` > 0:
 
-> Warning: {count} deals totaling ${total} have no manager forecast category set.
-
-**Forecast Framework:**
-
-- **Commit** = 90% confident in amount and close date ("surprised if it doesn't sign")
-- **Best Case** = 50/50 probability ("happy if it signs")
-- **Pipeline** = Low probability ("surprised if it does sign")
+> Warning: {count} deals totaling ${pipeline} have no manager forecast category set.
 
 ---
 
-### Section 2: Activity (QTD)
+### Section 2: Activity
 
-#### IPM Summary
+#### Summary (NB Team, QoQ)
 
-- IPMs Held: `activity.ipms.total` of `activity.ipms.goal` goal
-- By Seller:
+| Metric | Current Q | Prior Q | QoQ |
+| ------ | --------- | ------- | --- |
 
-| Seller | IPMs |
-| ------ | ---- |
+Show totals (not by person) for: Emails, Meetings, IPMs, Pipeline Created. Current Q from `activity.*` totals, Prior Q from `activity.prior_q.*` totals. QoQ = percentage change. If `activity.prior_q` is absent, omit Prior Q and QoQ columns.
 
-Populate from `activity.ipms.by_seller`.
+#### IPMs
+
+| Seller | IPMs | Goal | % to Goal |
+| ------ | ---- | ---- | --------- |
+
+Populate from `activity.ipms.by_seller`, filtered to NB team (include departed if present). Goal = `seller_targets.ipms_quarterly` (24 per person). Team total row with team goal = NB sellers × 24.
 
 #### Pipeline Created
 
-- Total: $`activity.pipeline_created.total` (`activity.pipeline_created.count` deals)
-- Quarterly Goal: $`activity.pipeline_created.goal` — % to Goal: `activity.pipeline_created.pct_to_goal`%
-- ACE: $`activity.pipeline_created.by_type.ACE` | K1: $`activity.pipeline_created.by_type.K1`
+| Seller | Created | Goal | % to Goal |
+| ------ | ------- | ---- | --------- |
 
-| Seller | Pipeline Created $ | # Deals |
-| ------ | ------------------ | ------- |
+Populate from `activity.pipeline_created.by_seller`, filtered to NB team. Goal = `seller_targets.pipeline_created_quarterly` ($1.1M per person). Team total row.
 
-Populate from `activity.pipeline_created.by_seller`.
+_Below table: ACE: $`activity.pipeline_created.by_type.ACE` | K1: $`activity.pipeline_created.by_type.K1`_
 
-#### Pipeline Created Detail
+#### Events
 
-| Deal | AE  | Type | Created Date | ACV | Current Stage |
-| ---- | --- | ---- | ------------ | --- | ------------- |
+| Event | Attended | Invited | No Show | Viewed Replay | Total |
+| ----- | -------- | ------- | ------- | ------------- | ----- |
 
-Populate from `activity.pipeline_created.deals[]`. Sort by ARR descending (already sorted).
-
-#### Activity by Seller (Current Q vs Prior Q)
-
-| Seller | Emails (Current Q) | Emails (Prior Q) | Meetings (Current Q) | Meetings (Prior Q) | IPMs (Actual/Goal) | Pipe Created $ |
-| ------ | ------------------ | ---------------- | -------------------- | ------------------ | ------------------ | -------------- |
-
-Populate current Q from the respective `activity.*` sub-keys. Populate prior Q from `activity.prior_q.*` sub-keys. If `activity.prior_q` is absent (e.g., Q1 of first tracked FY), omit the Prior Q columns.
-
-#### Event Activity
-
-Events this quarter: `activity.events.count`
+Populate from `activity.events.by_event`. One row per event, status counts across columns. Add **Total** row from `activity.events.by_status`. Add **Prior Q** row from `activity.prior_q.events.by_status` (if present). Add **QoQ** row showing percentage change per status.
 
 ---
 
-### Section 3: Pipeline (Current Q + Next Q)
+### Section 3: Pipeline — Next Quarter
 
-#### Late-Stage Deals — Current Quarter
+_NB-owned deals only. Show only the next quarter's pipeline (not current Q)._
 
-Total late-stage (Proposal + Procurement): $`pipeline.late_stage_current_q.total` (`pipeline.late_stage_current_q.count` deals)
+- Total Pipeline (Qual+): `pipeline.next_q.qual_plus_total` NB-filtered
+- Quarterly Bookings Goal: `targets.bookings` (next Q)
+- Coverage: NB pipeline / goal
+- Late-Stage (Proposal+): `pipeline.next_q.late_stage_total` NB-filtered ({count} deals)
 
-Coverage ratio: `pipeline.coverage_ratio`x (late-stage $ / quarterly goal)
+#### Manager Forecast vs Goal
 
-| Deal | AE  | Type | Stage | Close Date | ACV | Manager Forecast |
-| ---- | --- | ---- | ----- | ---------- | --- | ---------------- |
+| Category  | # Deals | $ Pipeline                                | $ Manager Forecast                        | Weight |
+| --------- | ------- | ----------------------------------------- | ----------------------------------------- | ------ |
+| Commit    |         |                                           |                                           | 90%    |
+| Best Case |         |                                           |                                           | 50%    |
+| Pipeline  |         |                                           |                                           | 10%    |
+| **Total** |         | `pipeline.next_q.forecast.pipeline_total` | `pipeline.next_q.forecast.weighted_total` |        |
 
-Populate from `pipeline.late_stage_current_q.deals[]`.
+NB-filtered weighted forecast vs `targets.bookings`: show as percentage.
 
-#### Next Quarter Line-of-Sight
+If `pipeline.next_q.forecast.by_category.missing.count` > 0:
 
-- Late-stage (Proposal+): $`pipeline.next_q.late_stage_total` (`pipeline.next_q.late_stage_count` deals)
-- Early pipeline (Qual+): $`pipeline.next_q.early_total`
+> Warning: {count} deals totaling ${pipeline} have no manager forecast category set.
 
-| Deal | AE  | Stage | Close Date | ACV |
-| ---- | --- | ----- | ---------- | --- |
+#### Next Q Deal Table
 
-Populate from `pipeline.next_q.deals[]`.
+| Deal | AE  | Stage | Close Date | ACV | Forecast |
+| ---- | --- | ----- | ---------- | --- | -------- |
+
+Populate from `pipeline.next_q.deals[]`, filtered to NB team owners. Include forecast category from `pipeline.late_stage_current_q.deals[]` where available.
 
 ---
 
 ### Section 4: Market Feedback
 
-#### Closed-Lost Summary
+#### Closed-Lost Summary (NB Team)
 
-- Total closed-lost (Qualification+ only): $`market_feedback.closed_lost.total` (`market_feedback.closed_lost.count` deals)
+- Total closed-lost (NB, Qualification+ only): filter `market_feedback.closed_lost.deals[]` to NB team owners
 - Note: Excludes deals lost at IPM stage (never qualified).
 
 #### Closed-Lost Detail Table
 
-| Deal | AE  | Type | Close Date | ACV | Loss Reason |
-| ---- | --- | ---- | ---------- | --- | ----------- |
+| Deal | AE  | ACV | Loss Reason |
+| ---- | --- | --- | ----------- |
 
-Populate from `market_feedback.closed_lost.deals[]`. Sort by ARR descending (already sorted).
+Populate from `market_feedback.closed_lost.deals[]`, filtered to NB team. Sort by ACV descending.
 
 #### Loss Reason Rollup
 
 | Reason | # Deals | $ Lost | Read |
 | ------ | ------- | ------ | ---- |
 
-Populate counts and totals from `market_feedback.closed_lost.by_reason`.
-
-For the "Read" column, write a 1-2 sentence interpretation for each reason:
+Compute from NB-filtered losses. For the "Read" column:
 
 - **Not a priority**: Buyer doesn't see urgency. ICP/timing miss or weak point of view.
 - **No response**: Outbound never landed. Check channel and message.
 - **No budget**: Came in unqualified or budget was pulled. Mostly early-stage.
 - **Timing**: Coming back later — re-engagement candidates.
 - **Loss of Champion**: Multi-thread depth gap. Single point of failure.
-- **Went with competitor**: Product-market fit question. Note which competitor if known.
-- **Not specified**: Vague — flag for cleanup. Push AEs to select a real reason.
+- **Other**: Vague — flag for cleanup. Push AEs to select a real reason.
 
-For any reason not listed above, write a brief data-driven interpretation.
-
-#### Most Actionable Insight
-
-Based on the loss reason data, draft a callout box:
-
-> **Most actionable insight:** [One specific observation from the data with a recommended action. Example: "7 of 23 losses ($575K) were 'Not a priority' — this is an ICP/timing signal. Consider tightening qualification criteria at the IPM stage to filter earlier."]
+> **Most actionable insight:** [One specific observation from the NB loss data with a recommended action.]
 
 #### ACE vs K1 Mix Tracking
 
@@ -259,55 +244,44 @@ Based on the loss reason data, draft a callout box:
 | ACE  | {count} / ${total} |         |          |              |
 | K1   | {count} / ${total} |         |          |              |
 
-Populate from `market_feedback.ace_k1_mix`. Show both count and dollar total per cell.
-
-Write a 1-2 sentence observation about the ACE/K1 conversion pattern. Example: "ACE pipeline is building ($X.XXM created) but conversion remains a gap — 0 ACE wins vs X K1 wins. Watch for Q2 ACE progression."
+Populate from `market_feedback.ace_k1_mix`. Write a 1-2 sentence observation about the ACE/K1 conversion pattern.
 
 ---
 
 ### Section 5: Seller Performance
 
-For each seller in `seller_performance` (Pete Davies, Don Vanderslice, Tim Long), write a 3-lens assessment:
+Per-seller targets from `seller_targets`:
 
-```
-**[Seller Name]**  [Headline Tag]
+| Target           | Per Seller/Q                       |
+| ---------------- | ---------------------------------- |
+| Bookings         | $275,000 ($1.1M/yr)                |
+| Pipeline Created | $1,100,000 (4x quarterly bookings) |
+| IPMs             | 24                                 |
+| Open Pipeline    | $4,400,000 (4x annual bookings)    |
+| Win Rate         | 29%                                |
 
-R&R:     [Draft 2-3 sentences based on the data — deal ownership patterns, pipeline shape,
-          activity level, engagement quality. Be specific: cite deal counts, dollar amounts.]
+For each seller in `seller_performance`, write a headline tag and 2-3 sentence R&R narrative, then show the metrics table:
 
-Goals:   Bookings: ${bookings} ({bookings_count} deals)
-         Pipeline created: ${pipeline_created} ({pipeline_count} deals)
-         IPMs: {ipms} of 24 goal (team) / 8 goal (Pete)
-
-Metrics: Emails (last month): {emails_last_month}
-         Meetings (last month): {meetings_last_month}
-         Open pipeline (Qual+): ${open_pipeline}
-         Hygiene flags: {hygiene_flags}
-         Win rate: {win_rate}%
-```
-
-**Headline tags:** Write a 3-6 word headline that captures this seller's quarter. Base it on data patterns:
+**Headline tags:** 3-6 words capturing the seller's quarter:
 
 - High bookings + low pipeline = "Closing machine; needs pipe"
 - Zero bookings + strong activity = "Pipeline builder; conversion gap"
 - High IPMs + low conversion = "Door-opener; qualification drag"
-- Balanced across metrics = "Consistent performer; steady state"
+
+**Metrics table per seller:**
+
+| Metric          | Actual                       | Goal       | %   |
+| --------------- | ---------------------------- | ---------- | --- |
+| Bookings        | `bookings` ({count})         | $275,000   |     |
+| Pipe Created    | `pipeline_created` ({count}) | $1,100,000 |     |
+| IPMs            | `ipms`                       | 24         |     |
+| Win Rate        | `win_rate`%                  | 29%        |     |
+| Open Pipeline   | `open_pipeline`              | $4,400,000 |     |
+| Next Q Coverage | NB next Q pipeline / $275K   | 4.0x       |     |
+
+Include departed members (Tim Long, Lee Fine) if they have data in the period — show abbreviated metrics, note "Departed."
 
 Be honest but constructive — these go in Pete's report to leadership.
-
-#### Commission Achievement Table
-
-| Component               | Team (rollup) | Tim Long | Don Vanderslice | Pete Davies | Ben Smith |
-| ----------------------- | ------------- | -------- | --------------- | ----------- | --------- | --- |
-| Direct New Biz Bookings |               |          |                 |             |           | —   |
-| Pipeline Created — ACE  |               |          |                 |             |           |     |
-| Pipeline Created — K1   |               |          |                 |             |           |     |
-| IPMs                    |               |          |                 |             |           |     |
-| Win Rate                |               |          |                 |             |           |     |
-
-Populate from `seller_performance` data. Ben Smith is Partner channel — show bookings only if available from the overall bookings data.
-
-**Data source note:** Seller assessments use HubSpot activity data (emails, meetings, deal records). Granola meeting quality data is available for Pete's meetings only — Don/Lee/Tim Granola coverage is incomplete. R&R narratives reflect HubSpot data patterns, not meeting quality observations.
 
 ---
 
@@ -315,23 +289,17 @@ Populate from `seller_performance` data. Ben Smith is Partner channel — show b
 
 Based on PTM spreadsheet as of `{initiatives.ptm_file_date}`.
 
-> **Note:** Pete should review and edit this section before sharing. Initiative statuses are extracted from the PTM spreadsheet and may need context that isn't captured in the data.
+> **Note:** Pete should review and edit this section before sharing.
 
-Map each PTM row from `initiatives.pete_ptms[]` to the appropriate sub-section based on the `priority` field:
+Map each PTM row from `initiatives.pete_ptms[]` to the appropriate sub-section:
 
 #### 6a. Talent
 
 Priorities containing: Revenue, Hiring, Perf Mgmt, Partner, Talent, AE, AD, VDL
 
-| Initiative | Q Status | Next Q Goal | Notes |
-| ---------- | -------- | ----------- | ----- |
-
 #### 6b. Enablement
 
 Priorities containing: Deck, Collateral, Objection, Onboarding, Enablement, Training
-
-| Initiative | Q Status | Next Q Goal | Notes |
-| ---------- | -------- | ----------- | ----- |
 
 #### 6c. GTM
 
@@ -339,15 +307,6 @@ Priorities containing: IPM, ACE, Pipeline, Event, GTM, Territory, ICP, Stage, Re
 
 | Initiative | Q Status | Next Q Goal | Notes |
 | ---------- | -------- | ----------- | ----- |
-
-For each row:
-
-- **Initiative** = `priority` + `tactics` (combined into a descriptive title)
-- **Q Status** = `status` field
-- **Next Q Goal** = Draft a 1-sentence forward-looking goal based on the current status and metrics
-- **Notes** = `latest_update` field
-
-If a PTM row doesn't clearly fit any category, place it in 6c. GTM.
 
 PTM sheet used: `{initiatives.ptm_sheet}`
 
@@ -359,25 +318,15 @@ Check each condition and include if applicable:
 
 **If** `data_quality.forecast_coverage_pct` < 100:
 
-> Warning: Manager forecast is `{forecast_coverage_pct}`% populated for late-stage deals. The following deals are missing a forecast category:
-
-| Deal | AE  | Stage | ACV |
-| ---- | --- | ----- | --- |
-
-Populate from `data_quality.forecast_missing_deals[]`.
+> Warning: Manager forecast is {forecast_coverage_pct}% populated for late-stage deals.
 
 **If** `data_quality.null_platform_amt_deals` is not empty:
 
-> Warning: `{count}` deals at Qualification+ have no Platform Amount set:
-
-List deal names and AEs.
+> Warning: {count} deals at Qualification+ have no Platform Amount set.
 
 **If** `data_quality.past_due_open_deals` is not empty:
 
-> Warning: `{count}` deals have close dates in the past but are still open:
-
-| Deal | AE  | Close Date | Stage | ACV |
-| ---- | --- | ---------- | ----- | --- |
+> Warning: {count} deals have close dates in the past but are still open.
 
 ---
 
